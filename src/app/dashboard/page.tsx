@@ -5,20 +5,33 @@ import {
   Star,
   Bookmark,
   Pin,
+  Code,
   CodeXml,
   Sparkles,
   Terminal,
   Notebook,
+  StickyNote,
   File,
   Image as ImageIcon,
   Link2,
   type LucideIcon,
 } from 'lucide-react'
-import { mockCollections, mockItems, mockItemTypes } from '@/lib/mock-data'
+import { mockItems, mockItemTypes } from '@/lib/mock-data'
+import { getCollections } from '@/lib/db/collections'
+import { prisma } from '@/lib/prisma'
 
 // ── Icon helpers ──────────────────────────────────────────────────────────────
 
 const ICON_MAP: Record<string, LucideIcon> = {
+  // Seed icon names (Lucide component names)
+  Code: Code,
+  Sparkles: Sparkles,
+  Terminal: Terminal,
+  StickyNote: StickyNote,
+  File: File,
+  Image: ImageIcon,
+  Link: Link2,
+  // Legacy mock-data icon names
   'code-xml': CodeXml,
   sparkles: Sparkles,
   terminal: Terminal,
@@ -31,18 +44,6 @@ const ICON_MAP: Record<string, LucideIcon> = {
 function getIcon(name: string): LucideIcon {
   return ICON_MAP[name] ?? File
 }
-
-// ── Derived data ──────────────────────────────────────────────────────────────
-
-const totalItems = mockItemTypes.reduce((sum, t) => sum + t.count, 0)
-const totalCollections = mockCollections.length
-const favoriteItems = mockItems.filter((i) => i.isFavorite).length
-const favoriteCollections = mockCollections.filter((c) => c.isFavorite).length
-
-const pinnedItems = mockItems.filter((i) => i.isPinned)
-const recentItems = [...mockItems]
-  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  .slice(0, 10)
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -71,10 +72,13 @@ function StatCard({
 function CollectionCard({
   collection,
 }: {
-  collection: (typeof mockCollections)[number]
+  collection: Awaited<ReturnType<typeof getCollections>>[number]
 }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-4 flex flex-col gap-2">
+    <div
+      className="rounded-lg border bg-card p-4 flex flex-col gap-2"
+      style={{ borderColor: `${collection.dominantColor}60` }}
+    >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-1.5 min-w-0">
           <span className="font-medium truncate">{collection.name}</span>
@@ -84,7 +88,7 @@ function CollectionCard({
         </div>
       </div>
       <p className="text-xs text-muted-foreground">
-        {collection.itemCount} items
+        {collection.itemCount} {collection.itemCount === 1 ? 'item' : 'items'}
       </p>
       {collection.description && (
         <p className="text-sm text-muted-foreground line-clamp-1">
@@ -154,7 +158,26 @@ function ItemRow({ item }: { item: (typeof mockItems)[number] }) {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  // TODO: replace with session.user.id once auth is set up
+  const demoUser = await prisma.user.findUnique({
+    where: { email: 'hk540539@gmail.com' },
+    select: { id: true },
+  })
+
+  const collections = demoUser ? await getCollections(demoUser.id) : []
+
+  // Stats still from mock data until all sections are wired to DB
+  const totalItems = mockItemTypes.reduce((sum, t) => sum + t.count, 0)
+  const totalCollections = collections.length
+  const favoriteItems = mockItems.filter((i) => i.isFavorite).length
+  const favoriteCollections = collections.filter((c) => c.isFavorite).length
+
+  const pinnedItems = mockItems.filter((i) => i.isPinned)
+  const recentItems = [...mockItems]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 10)
+
   return (
     <div className="space-y-8">
       {/* Heading */}
@@ -173,7 +196,7 @@ export default function DashboardPage() {
         <StatCard label="Favorite Collections" value={favoriteCollections} icon={Bookmark} />
       </div>
 
-      {/* Collections */}
+      {/* Collections — real DB data */}
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Collections</h2>
@@ -184,11 +207,15 @@ export default function DashboardPage() {
             View all
           </Link>
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {mockCollections.map((col) => (
-            <CollectionCard key={col.id} collection={col} />
-          ))}
-        </div>
+        {collections.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No collections yet.</p>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {collections.map((col) => (
+              <CollectionCard key={col.id} collection={col} />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Pinned */}
