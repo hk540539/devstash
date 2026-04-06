@@ -1,6 +1,6 @@
 # Current Feature
 
-Prisma + Neon PostgreSQL Setup
+Seed Sample Data
 
 ## Status
 
@@ -12,21 +12,20 @@ In Progress
 
 <!-- Goals & requirements -->
 
-- Install and configure Prisma 7 (note: has breaking changes vs v6)
-- Set up Neon PostgreSQL (serverless) as the database provider
-- Create initial schema based on data models in `context/project-overview.md`
-- Include NextAuth models (Account, Session, VerificationToken)
-- Add appropriate indexes and cascade deletes
-- Always use `prisma migrate dev` — never `db push`
-- Dev branch maps to `DATABASE_URL`, production branch separate
+- Install bcryptjs and hash demo user password (12 rounds)
+- Add `emailVerified` field to User model + migration
+- Overwrite `prisma/seed.ts` with full sample data
+- Seed 1 demo user (hk540539@gmail.com)
+- Seed 7 system ItemTypes with updated icons/colors from spec
+- Seed 5 collections with items: React Patterns, AI Workflows, DevOps, Terminal Commands, Design Resources
 
 ## Notes
 
 <!-- Any extra notes -->
 
-- Use Prisma 7 — review upgrade guide for breaking changes before implementing
-- Development and production use separate Neon branches
-- Schema will evolve — keep migrations in sync
+- Spec: `context/features/seed-spec.md`
+- Use `upsert` so seed is idempotent (safe to re-run)
+- Real URLs required for link items (DevOps and Design Resources collections)
 
 ## History
 
@@ -37,3 +36,4 @@ In Progress
 - Dashboard UI Phase 1 completed — ShadCN initialized, `/dashboard` route with topbar, sidebar and main placeholders
 - Dashboard UI Phase 2 completed — collapsible sidebar with item types, favorite/all collections, user avatar, mobile drawer
 - Dashboard UI Phase 3 completed — 4 stats cards, recent collections grid, pinned items section, 10 most recent items list
+- Prisma + Neon PostgreSQL setup completed — Prisma 7, full schema with NextAuth models, indexes, cascade deletes, initial migration, system ItemTypes seeded
