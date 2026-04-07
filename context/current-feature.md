@@ -1,6 +1,6 @@
 # Current Feature
 
-Dashboard Collections — Real Data
+Dashboard Items — Real Data
 
 ## Status
 
@@ -28,3 +28,4 @@ Completed
 - Prisma + Neon PostgreSQL setup completed — Prisma 7, full schema with NextAuth models, indexes, cascade deletes, initial migration, system ItemTypes seeded
 - Seed sample data completed — demo user, 7 system ItemTypes, 5 collections, 18 items seeded
 - Dashboard Collections — Real Data completed — collections fetched from DB, border color from dominant type, type icons shown
+- Dashboard Items — Real Data completed — pinned and recent items fetched from DB, icon/color from item type, tags displayed, mock data fully removed

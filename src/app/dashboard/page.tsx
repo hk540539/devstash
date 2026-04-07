@@ -16,14 +16,13 @@ import {
   Link2,
   type LucideIcon,
 } from 'lucide-react'
-import { mockItems, mockItemTypes } from '@/lib/mock-data'
 import { getCollections } from '@/lib/db/collections'
+import { getPinnedItems, getRecentItems, type ItemWithMeta } from '@/lib/db/items'
 import { prisma } from '@/lib/prisma'
 
 // ── Icon helpers ──────────────────────────────────────────────────────────────
 
 const ICON_MAP: Record<string, LucideIcon> = {
-  // Seed icon names (Lucide component names)
   Code: Code,
   Sparkles: Sparkles,
   Terminal: Terminal,
@@ -31,7 +30,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   File: File,
   Image: ImageIcon,
   Link: Link2,
-  // Legacy mock-data icon names
+  // Legacy mock-data names
   'code-xml': CodeXml,
   sparkles: Sparkles,
   terminal: Terminal,
@@ -105,10 +104,9 @@ function CollectionCard({
   )
 }
 
-function ItemRow({ item }: { item: (typeof mockItems)[number] }) {
-  const type = mockItemTypes.find((t) => t.id === item.typeId)
-  const Icon = type ? getIcon(type.icon) : File
-  const iconColor = type?.color ?? '#6B7280'
+function ItemRow({ item }: { item: ItemWithMeta }) {
+  const Icon = getIcon(item.type.icon)
+  const iconColor = item.type.color
 
   const date = new Date(item.createdAt).toLocaleDateString('en-US', {
     month: 'short',
@@ -138,7 +136,7 @@ function ItemRow({ item }: { item: (typeof mockItems)[number] }) {
             {item.description}
           </p>
         )}
-        {item.tags && item.tags.length > 0 && (
+        {item.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-1.5">
             {item.tags.map((tag) => (
               <span
@@ -165,18 +163,16 @@ export default async function DashboardPage() {
     select: { id: true },
   })
 
-  const collections = demoUser ? await getCollections(demoUser.id) : []
+  const [collections, pinnedItems, recentItems] = await Promise.all([
+    demoUser ? getCollections(demoUser.id) : [],
+    demoUser ? getPinnedItems(demoUser.id) : [],
+    demoUser ? getRecentItems(demoUser.id, 10) : [],
+  ])
 
-  // Stats still from mock data until all sections are wired to DB
-  const totalItems = mockItemTypes.reduce((sum, t) => sum + t.count, 0)
+  const totalItems = recentItems.length
   const totalCollections = collections.length
-  const favoriteItems = mockItems.filter((i) => i.isFavorite).length
+  const favoriteItems = recentItems.filter((i) => i.isFavorite).length
   const favoriteCollections = collections.filter((c) => c.isFavorite).length
-
-  const pinnedItems = mockItems.filter((i) => i.isPinned)
-  const recentItems = [...mockItems]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 10)
 
   return (
     <div className="space-y-8">
@@ -196,7 +192,7 @@ export default async function DashboardPage() {
         <StatCard label="Favorite Collections" value={favoriteCollections} icon={Bookmark} />
       </div>
 
-      {/* Collections — real DB data */}
+      {/* Collections */}
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Collections</h2>
@@ -236,11 +232,15 @@ export default async function DashboardPage() {
       {/* Recent Items */}
       <section>
         <h2 className="text-lg font-semibold mb-4">Recent Items</h2>
-        <div className="space-y-2">
-          {recentItems.map((item) => (
-            <ItemRow key={item.id} item={item} />
-          ))}
-        </div>
+        {recentItems.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No items yet.</p>
+        ) : (
+          <div className="space-y-2">
+            {recentItems.map((item) => (
+              <ItemRow key={item.id} item={item} />
+            ))}
+          </div>
+        )}
       </section>
     </div>
   )
