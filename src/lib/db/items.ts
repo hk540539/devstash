@@ -1,5 +1,66 @@
 import { prisma } from "@/lib/prisma";
 
+export type SidebarItemType = {
+  id: string;
+  name: string; // display name e.g. "Snippets"
+  slug: string; // URL segment e.g. "snippets"
+  icon: string;
+  color: string;
+  count: number;
+};
+
+// Ordered display config: DB name → display label shown in sidebar
+const SIDEBAR_TYPE_ORDER: Array<{ dbName: string; displayName: string }> = [
+  { dbName: "Snippet", displayName: "Snippets" },
+  { dbName: "Prompt",  displayName: "Prompts"  },
+  { dbName: "Note",    displayName: "Notes"    },
+  { dbName: "File",    displayName: "Files"    },
+  { dbName: "Image",   displayName: "Images"   },
+  { dbName: "Link",    displayName: "Links"    },
+];
+
+export async function getStats(userId: string) {
+  const [totalItems, totalCollections, favoriteItems, favoriteCollections] =
+    await Promise.all([
+      prisma.item.count({ where: { userId } }),
+      prisma.collection.count({ where: { userId } }),
+      prisma.item.count({ where: { userId, isFavorite: true } }),
+      prisma.collection.count({ where: { userId, isFavorite: true } }),
+    ]);
+  return { totalItems, totalCollections, favoriteItems, favoriteCollections };
+}
+
+export async function getSidebarItemTypes(
+  userId: string,
+): Promise<SidebarItemType[]> {
+  const types = await prisma.itemType.findMany({
+    where: { isSystem: true },
+    include: {
+      items: {
+        where: { userId },
+        select: { id: true },
+      },
+    },
+  });
+
+  const typeMap = new Map(types.map((t) => [t.name, t]));
+
+  return SIDEBAR_TYPE_ORDER.flatMap(({ dbName, displayName }) => {
+    const t = typeMap.get(dbName);
+    if (!t) return [];
+    return [
+      {
+        id: t.id,
+        name: displayName,
+        slug: dbName.toLowerCase() + "s",
+        icon: t.icon ?? "File",
+        color: t.color ?? "#6B7280",
+        count: t.items.length,
+      },
+    ];
+  });
+}
+
 export type ItemWithMeta = {
   id: string;
   title: string;

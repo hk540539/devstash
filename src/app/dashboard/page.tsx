@@ -1,3 +1,4 @@
+import React from 'react'
 import Link from 'next/link'
 import {
   Layers,
@@ -17,7 +18,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { getCollections } from '@/lib/db/collections'
-import { getPinnedItems, getRecentItems, type ItemWithMeta } from '@/lib/db/items'
+import { getStats, getPinnedItems, getRecentItems, type ItemWithMeta } from '@/lib/db/items'
 import { prisma } from '@/lib/prisma'
 
 // ── Icon helpers ──────────────────────────────────────────────────────────────
@@ -42,6 +43,21 @@ const ICON_MAP: Record<string, LucideIcon> = {
 
 function getIcon(name: string): LucideIcon {
   return ICON_MAP[name] ?? File
+}
+
+function TypeIcon({
+  name,
+  className,
+  color,
+}: {
+  name: string
+  className: string
+  color?: string
+}) {
+  return React.createElement(getIcon(name), {
+    className,
+    style: color ? { color } : undefined,
+  })
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -95,17 +111,15 @@ function CollectionCard({
         </p>
       )}
       <div className="mt-auto flex items-center gap-1.5 pt-1">
-        {collection.typeIcons.map((iconName, i) => {
-          const Icon = getIcon(iconName)
-          return <Icon key={i} className="h-3.5 w-3.5 text-muted-foreground" />
-        })}
+        {collection.typeIcons.map((iconName, i) => (
+          <TypeIcon key={i} name={iconName} className="h-3.5 w-3.5 text-muted-foreground" />
+        ))}
       </div>
     </div>
   )
 }
 
 function ItemRow({ item }: { item: ItemWithMeta }) {
-  const Icon = getIcon(item.type.icon)
   const iconColor = item.type.color
 
   const date = new Date(item.createdAt).toLocaleDateString('en-US', {
@@ -119,7 +133,7 @@ function ItemRow({ item }: { item: ItemWithMeta }) {
         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md"
         style={{ backgroundColor: `${iconColor}20` }}
       >
-        <Icon className="h-4 w-4" style={{ color: iconColor }} />
+        <TypeIcon name={item.type.icon} className="h-4 w-4" color={iconColor} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
@@ -163,16 +177,14 @@ export default async function DashboardPage() {
     select: { id: true },
   })
 
-  const [collections, pinnedItems, recentItems] = await Promise.all([
+  const [collections, pinnedItems, recentItems, stats] = await Promise.all([
     demoUser ? getCollections(demoUser.id) : [],
     demoUser ? getPinnedItems(demoUser.id) : [],
     demoUser ? getRecentItems(demoUser.id, 10) : [],
+    demoUser ? getStats(demoUser.id) : { totalItems: 0, totalCollections: 0, favoriteItems: 0, favoriteCollections: 0 },
   ])
 
-  const totalItems = recentItems.length
-  const totalCollections = collections.length
-  const favoriteItems = recentItems.filter((i) => i.isFavorite).length
-  const favoriteCollections = collections.filter((c) => c.isFavorite).length
+  const { totalItems, totalCollections, favoriteItems, favoriteCollections } = stats
 
   return (
     <div className="space-y-8">

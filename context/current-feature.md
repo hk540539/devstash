@@ -1,12 +1,12 @@
 # Current Feature
 
-Dashboard Items — Real Data
+<!-- Feature name here -->
 
 ## Status
 
 <!-- Not Started|In Progress|Completed -->
 
-Completed
+Not Started
 
 ## Goals
 
@@ -29,3 +29,4 @@ Completed
 - Seed sample data completed — demo user, 7 system ItemTypes, 5 collections, 18 items seeded
 - Dashboard Collections — Real Data completed — collections fetched from DB, border color from dominant type, type icons shown
 - Dashboard Items — Real Data completed — pinned and recent items fetched from DB, icon/color from item type, tags displayed, mock data fully removed
+- Stats & Sidebar — Real Data completed — accurate stats from DB, system item types in sidebar (ordered/renamed), colored circle for recent collections, View all collections link added

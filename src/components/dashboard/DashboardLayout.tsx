@@ -21,19 +21,30 @@ import {
   ChevronDown,
   ChevronRight,
   Menu,
+  Code,
   CodeXml,
   Sparkles,
   Terminal,
   Notebook,
+  StickyNote,
   File,
   Image as ImageIcon,
   Link2,
   type LucideIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { mockUser, mockItemTypes, mockCollections } from '@/lib/mock-data'
+import type { SidebarItemType } from '@/lib/db/items'
+import type { CollectionWithMeta } from '@/lib/db/collections'
 
 const ICON_MAP: Record<string, LucideIcon> = {
+  Code: Code,
+  Sparkles: Sparkles,
+  Terminal: Terminal,
+  StickyNote: StickyNote,
+  File: File,
+  Image: ImageIcon,
+  Link: Link2,
+  // legacy names
   'code-xml': CodeXml,
   sparkles: Sparkles,
   terminal: Terminal,
@@ -47,32 +58,30 @@ function getIcon(name: string): LucideIcon {
   return ICON_MAP[name] ?? File
 }
 
-function getTypeSlug(name: string): string {
-  return name.toLowerCase() + 's'
-}
-
 interface SidebarBodyProps {
   isCollapsed: boolean
+  itemTypes: SidebarItemType[]
+  collections: CollectionWithMeta[]
 }
 
-function SidebarBody({ isCollapsed }: SidebarBodyProps) {
+function SidebarBody({ isCollapsed, itemTypes, collections }: SidebarBodyProps) {
   const [typesOpen, setTypesOpen] = useState(true)
   const [collectionsOpen, setCollectionsOpen] = useState(true)
 
-  const favoriteCollections = mockCollections.filter((c) => c.isFavorite)
-  const allCollections = mockCollections.filter((c) => !c.isFavorite)
+  const favoriteCollections = collections.filter((c) => c.isFavorite)
+  const recentCollections = collections.filter((c) => !c.isFavorite)
 
   if (isCollapsed) {
     return (
       <div className="flex flex-col items-center gap-0.5 py-2">
-        {mockItemTypes.map((type) => {
+        {itemTypes.map((type) => {
           const Icon = getIcon(type.icon)
           return (
             <Tooltip key={type.id}>
               <TooltipTrigger
                 render={
                   <Link
-                    href={`/items/${getTypeSlug(type.name)}`}
+                    href={`/items/${type.slug}`}
                     className="flex h-9 w-9 items-center justify-center rounded-md hover:bg-sidebar-accent"
                   />
                 }
@@ -124,12 +133,12 @@ function SidebarBody({ isCollapsed }: SidebarBodyProps) {
 
       {typesOpen && (
         <div className="mb-1 px-2">
-          {mockItemTypes.map((type) => {
+          {itemTypes.map((type) => {
             const Icon = getIcon(type.icon)
             return (
               <Link
                 key={type.id}
-                href={`/items/${getTypeSlug(type.name)}`}
+                href={`/items/${type.slug}`}
                 className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               >
                 <Icon className="h-4 w-4 shrink-0" style={{ color: type.color }} />
@@ -158,33 +167,52 @@ function SidebarBody({ isCollapsed }: SidebarBodyProps) {
 
       {collectionsOpen && (
         <div className="px-2">
-          <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
-            Favorites
-          </p>
-          {favoriteCollections.map((col) => (
-            <Link
-              key={col.id}
-              href={`/collections/${col.id}`}
-              className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-            >
-              <Star className="h-3.5 w-3.5 shrink-0 fill-yellow-400 text-yellow-400" />
-              <span className="flex-1 truncate">{col.name}</span>
-            </Link>
-          ))}
+          {favoriteCollections.length > 0 && (
+            <>
+              <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+                Favorites
+              </p>
+              {favoriteCollections.map((col) => (
+                <Link
+                  key={col.id}
+                  href={`/collections/${col.id}`}
+                  className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                >
+                  <Star className="h-3.5 w-3.5 shrink-0 fill-yellow-400 text-yellow-400" />
+                  <span className="flex-1 truncate">{col.name}</span>
+                </Link>
+              ))}
+            </>
+          )}
 
-          <p className="mt-2 px-2 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
-            All Collections
-          </p>
-          {allCollections.map((col) => (
-            <Link
-              key={col.id}
-              href={`/collections/${col.id}`}
-              className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-            >
-              <span className="flex-1 truncate">{col.name}</span>
-              <span className="text-xs text-muted-foreground">{col.itemCount}</span>
-            </Link>
-          ))}
+          {recentCollections.length > 0 && (
+            <>
+              <p className="mt-2 px-2 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+                Recent
+              </p>
+              {recentCollections.map((col) => (
+                <Link
+                  key={col.id}
+                  href={`/collections/${col.id}`}
+                  className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                >
+                  <span
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: col.dominantColor }}
+                  />
+                  <span className="flex-1 truncate">{col.name}</span>
+                  <span className="text-xs text-muted-foreground">{col.itemCount}</span>
+                </Link>
+              ))}
+            </>
+          )}
+
+          <Link
+            href="/collections"
+            className="mt-1 flex items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          >
+            View all collections
+          </Link>
         </div>
       )}
     </div>
@@ -211,11 +239,18 @@ function UserFooter({ name, email, initials }: UserFooterProps) {
   )
 }
 
-export function DashboardLayout({ children }: { children: React.ReactNode }) {
+interface DashboardLayoutProps {
+  children: React.ReactNode
+  itemTypes: SidebarItemType[]
+  collections: CollectionWithMeta[]
+  user: { name: string; email: string }
+}
+
+export function DashboardLayout({ children, itemTypes, collections, user }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
 
-  const userInitials = mockUser.name
+  const userInitials = user.name
     .split(' ')
     .map((n) => n[0])
     .join('')
@@ -237,7 +272,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <SheetTitle>Navigation</SheetTitle>
               </SheetHeader>
               <div className="flex h-full flex-col">
-                {/* Mobile sidebar header */}
                 <div className="flex h-14 items-center gap-2 border-b border-sidebar-border px-4">
                   <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-bold">
                     S
@@ -245,14 +279,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   <span className="font-semibold">DevStash</span>
                 </div>
                 <div className="flex-1 overflow-auto">
-                  <SidebarBody isCollapsed={false} />
+                  <SidebarBody isCollapsed={false} itemTypes={itemTypes} collections={collections} />
                 </div>
                 <div className="border-t border-sidebar-border p-3">
-                  <UserFooter
-                    name={mockUser.name}
-                    email={mockUser.email}
-                    initials={userInitials}
-                  />
+                  <UserFooter name={user.name} email={user.email} initials={userInitials} />
                 </div>
               </div>
             </SheetContent>
@@ -283,7 +313,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               isSidebarOpen ? 'w-60' : 'w-[60px]'
             )}
           >
-            {/* Sidebar header */}
             <div
               className={cn(
                 'flex h-14 shrink-0 items-center border-b border-sidebar-border',
@@ -313,12 +342,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </Button>
             </div>
 
-            {/* Sidebar body */}
             <div className="flex-1 overflow-y-auto overflow-x-hidden">
-              <SidebarBody isCollapsed={!isSidebarOpen} />
+              <SidebarBody isCollapsed={!isSidebarOpen} itemTypes={itemTypes} collections={collections} />
             </div>
 
-            {/* Sidebar footer */}
             <div
               className={cn(
                 'border-t border-sidebar-border',
@@ -326,11 +353,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               )}
             >
               {isSidebarOpen ? (
-                <UserFooter
-                  name={mockUser.name}
-                  email={mockUser.email}
-                  initials={userInitials}
-                />
+                <UserFooter name={user.name} email={user.email} initials={userInitials} />
               ) : (
                 <Tooltip>
                   <TooltipTrigger render={<span className="cursor-pointer" />}>
@@ -339,8 +362,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     </Avatar>
                   </TooltipTrigger>
                   <TooltipContent side="right">
-                    <p className="font-medium">{mockUser.name}</p>
-                    <p className="text-xs text-muted-foreground">{mockUser.email}</p>
+                    <p className="font-medium">{user.name}</p>
+                    <p className="text-xs text-muted-foreground">{user.email}</p>
                   </TooltipContent>
                 </Tooltip>
               )}
