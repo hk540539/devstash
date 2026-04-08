@@ -7,15 +7,16 @@ export type SidebarItemType = {
   icon: string;
   color: string;
   count: number;
+  isPro: boolean;
 };
 
 // Ordered display config: DB name → display label shown in sidebar
-const SIDEBAR_TYPE_ORDER: Array<{ dbName: string; displayName: string }> = [
+const SIDEBAR_TYPE_ORDER: Array<{ dbName: string; displayName: string; isPro?: boolean }> = [
   { dbName: "Snippet", displayName: "Snippets" },
   { dbName: "Prompt",  displayName: "Prompts"  },
   { dbName: "Note",    displayName: "Notes"    },
-  { dbName: "File",    displayName: "Files"    },
-  { dbName: "Image",   displayName: "Images"   },
+  { dbName: "File",    displayName: "Files",   isPro: true },
+  { dbName: "Image",   displayName: "Images",  isPro: true },
   { dbName: "Link",    displayName: "Links"    },
 ];
 
@@ -45,7 +46,7 @@ export async function getSidebarItemTypes(
 
   const typeMap = new Map(types.map((t) => [t.name, t]));
 
-  return SIDEBAR_TYPE_ORDER.flatMap(({ dbName, displayName }) => {
+  return SIDEBAR_TYPE_ORDER.flatMap(({ dbName, displayName, isPro }) => {
     const t = typeMap.get(dbName);
     if (!t) return [];
     return [
@@ -56,6 +57,7 @@ export async function getSidebarItemTypes(
         icon: t.icon ?? "File",
         color: t.color ?? "#6B7280",
         count: t.items.length,
+        isPro: isPro ?? false,
       },
     ];
   });

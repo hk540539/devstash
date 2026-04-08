@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -143,6 +144,11 @@ function SidebarBody({ isCollapsed, itemTypes, collections }: SidebarBodyProps) 
               >
                 <Icon className="h-4 w-4 shrink-0" style={{ color: type.color }} />
                 <span className="flex-1">{type.name}</span>
+                {type.isPro && (
+                  <Badge variant="outline" className="h-4 px-1 text-[10px] font-semibold text-muted-foreground border-muted-foreground/30">
+                    PRO
+                  </Badge>
+                )}
                 <span className="text-xs text-muted-foreground">{type.count}</span>
               </Link>
             )
