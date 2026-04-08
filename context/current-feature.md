@@ -1,20 +1,20 @@
-# Current Feature: Add Pro Badge to Sidebar
+# Current Feature
+
+<!-- Feature name here -->
 
 ## Status
 
-In Progress
+<!-- Not Started|In Progress|Completed -->
+
+Not Started
 
 ## Goals
 
-- Add a "PRO" badge to the File and Image item type links in the sidebar
-- Use a ShadCN UI Badge component
-- Badge should be subtle but clear
-- "PRO" text must be all uppercase
+<!-- Goals & requirements -->
 
 ## Notes
 
-- Files and Images item types are Pro-only features
-- Badge should not be too visually dominant — subtle styling preferred
+<!-- Any extra notes -->
 
 ## History
 
@@ -30,3 +30,4 @@ In Progress
 - Dashboard Collections — Real Data completed — collections fetched from DB, border color from dominant type, type icons shown
 - Dashboard Items — Real Data completed — pinned and recent items fetched from DB, icon/color from item type, tags displayed, mock data fully removed
 - Stats & Sidebar — Real Data completed — accurate stats from DB, system item types in sidebar (ordered/renamed), colored circle for recent collections, View all collections link added
+- Add Pro Badge to Sidebar completed — subtle outline PRO badge added to Files and Images item types in expanded sidebar using ShadCN Badge
