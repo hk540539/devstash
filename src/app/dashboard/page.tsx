@@ -1,4 +1,3 @@
-import React from 'react'
 import Link from 'next/link'
 import {
   Layers,
@@ -6,59 +5,12 @@ import {
   Star,
   Bookmark,
   Pin,
-  Code,
-  CodeXml,
-  Sparkles,
-  Terminal,
-  Notebook,
-  StickyNote,
-  File,
-  Image as ImageIcon,
-  Link2,
   type LucideIcon,
 } from 'lucide-react'
 import { getCollections } from '@/lib/db/collections'
 import { getStats, getPinnedItems, getRecentItems, type ItemWithMeta } from '@/lib/db/items'
+import { getIcon } from '@/lib/icons'
 import { prisma } from '@/lib/prisma'
-
-// ── Icon helpers ──────────────────────────────────────────────────────────────
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  Code: Code,
-  Sparkles: Sparkles,
-  Terminal: Terminal,
-  StickyNote: StickyNote,
-  File: File,
-  Image: ImageIcon,
-  Link: Link2,
-  // Legacy mock-data names
-  'code-xml': CodeXml,
-  sparkles: Sparkles,
-  terminal: Terminal,
-  notebook: Notebook,
-  file: File,
-  image: ImageIcon,
-  link: Link2,
-}
-
-function getIcon(name: string): LucideIcon {
-  return ICON_MAP[name] ?? File
-}
-
-function TypeIcon({
-  name,
-  className,
-  color,
-}: {
-  name: string
-  className: string
-  color?: string
-}) {
-  return React.createElement(getIcon(name), {
-    className,
-    style: color ? { color } : undefined,
-  })
-}
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -111,9 +63,10 @@ function CollectionCard({
         </p>
       )}
       <div className="mt-auto flex items-center gap-1.5 pt-1">
-        {collection.typeIcons.map((iconName, i) => (
-          <TypeIcon key={i} name={iconName} className="h-3.5 w-3.5 text-muted-foreground" />
-        ))}
+        {collection.typeIcons.map((iconName, i) => {
+          const Icon = getIcon(iconName)
+          return <Icon key={i} className="h-3.5 w-3.5 text-muted-foreground" />
+        })}
       </div>
     </div>
   )
@@ -127,13 +80,16 @@ function ItemRow({ item }: { item: ItemWithMeta }) {
     day: 'numeric',
   })
 
+  const Icon = getIcon(item.type.icon)
+
   return (
     <div className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
       <div
         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md"
         style={{ backgroundColor: `${iconColor}20` }}
       >
-        <TypeIcon name={item.type.icon} className="h-4 w-4" color={iconColor} />
+        {/* eslint-disable-next-line react-hooks/static-components */}
+        <Icon className="h-4 w-4" style={{ color: iconColor }} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">

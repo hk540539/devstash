@@ -37,9 +37,8 @@ export async function getSidebarItemTypes(
   const types = await prisma.itemType.findMany({
     where: { isSystem: true },
     include: {
-      items: {
-        where: { userId },
-        select: { id: true },
+      _count: {
+        select: { items: { where: { userId } } },
       },
     },
   });
@@ -56,7 +55,7 @@ export async function getSidebarItemTypes(
         slug: dbName.toLowerCase() + "s",
         icon: t.icon ?? "File",
         color: t.color ?? "#6B7280",
-        count: t.items.length,
+        count: t._count.items,
         isPro: isPro ?? false,
       },
     ];

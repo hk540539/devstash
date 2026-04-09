@@ -22,42 +22,11 @@ import {
   ChevronDown,
   ChevronRight,
   Menu,
-  Code,
-  CodeXml,
-  Sparkles,
-  Terminal,
-  Notebook,
-  StickyNote,
-  File,
-  Image as ImageIcon,
-  Link2,
-  type LucideIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { getIcon } from '@/lib/icons'
 import type { SidebarItemType } from '@/lib/db/items'
 import type { CollectionWithMeta } from '@/lib/db/collections'
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  Code: Code,
-  Sparkles: Sparkles,
-  Terminal: Terminal,
-  StickyNote: StickyNote,
-  File: File,
-  Image: ImageIcon,
-  Link: Link2,
-  // legacy names
-  'code-xml': CodeXml,
-  sparkles: Sparkles,
-  terminal: Terminal,
-  notebook: Notebook,
-  file: File,
-  image: ImageIcon,
-  link: Link2,
-}
-
-function getIcon(name: string): LucideIcon {
-  return ICON_MAP[name] ?? File
-}
 
 interface SidebarBodyProps {
   isCollapsed: boolean
