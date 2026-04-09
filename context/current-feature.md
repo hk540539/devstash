@@ -1,24 +1,28 @@
-# Current Feature
-
-<!-- Feature name here -->
+# Current Feature: Auth Phase 2 — Email/Password Credentials
 
 ## Status
 
-<!-- Not Started|In Progress|Completed -->
-
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Goals & requirements -->
+- Add Credentials provider for email/password authentication
+- Add `password` field to User model via migration (if missing)
+- Update `auth.config.ts` with Credentials provider placeholder (`authorize: () => null`)
+- Override Credentials in `auth.ts` with real bcryptjs validation logic
+- Create `POST /api/auth/register` route (name, email, password, confirmPassword)
+- Validate passwords match, check existing user, hash with bcryptjs, create user
+- Verify email/password sign-in redirects to `/dashboard`
+- Verify GitHub OAuth still works
 
 ## Notes
 
-<!-- Any extra notes -->
+- bcryptjs already installed
+- Split config pattern: placeholder in `auth.config.ts`, real logic in `auth.ts` (keeps edge runtime clean)
+- Register route returns `{ success, data, error }` style response
+- Reference: https://authjs.dev/getting-started/authentication/credentials
 
 ## History
-
-<!-- Keep this updated. Earliest to latest -->
 
 - Project setup and boilerplate cleanup
 - Mock data added for dashboard UI (`src/lib/mock-data.ts`)
