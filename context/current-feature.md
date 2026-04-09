@@ -1,29 +1,20 @@
 # Current Feature
 
-Quick Wins from Code Audit
+<!-- Feature name here -->
 
 ## Status
 
 <!-- Not Started|In Progress|Completed -->
 
-In Progress
+Not Started
 
 ## Goals
 
-Low-risk cleanup items surfaced by the code-scanner audit. Auth is intentionally excluded — it's a larger separate feature.
-
-- **Fix N+1 in `getSidebarItemTypes`** ([src/lib/db/items.ts:37-44](src/lib/db/items.ts#L37-L44)) — replace `include: { items: { where: { userId }, select: { id: true } } }` + `t.items.length` with Prisma `_count: { select: { items: { where: { userId } } } }` so counting happens in Postgres instead of pulling every item ID into Node.
-- **Narrow `getCollections` select** ([src/lib/db/collections.ts:14-22](src/lib/db/collections.ts#L14-L22)) — only select `typeId` and `type.icon` / `type.color` on nested items instead of including full item rows. Stops shipping full snippet/prompt content over the wire on every dashboard render.
-- **Extract duplicated `ICON_MAP`** — currently copy-pasted in [src/app/dashboard/page.tsx:26-42](src/app/dashboard/page.tsx#L26-L42) and [src/components/dashboard/DashboardLayout.tsx:40-56](src/components/dashboard/DashboardLayout.tsx#L40-L56). Move `ICON_MAP` and `getIcon` into `src/lib/icons.ts` and import in both places.
-- **Use JSX in `TypeIcon`** ([src/app/dashboard/page.tsx:57-61](src/app/dashboard/page.tsx#L57-L61)) — replace `React.createElement(getIcon(name), …)` with `const Icon = getIcon(name); return <Icon … />` to match the pattern in `DashboardLayout.tsx`.
-- **Redirect `/` to `/dashboard`** ([src/app/page.tsx](src/app/page.tsx)) — current root renders an unstyled `<h1>Devstash</h1>` stub. Replace with `redirect('/dashboard')` from `next/navigation`.
+<!-- Goals & requirements -->
 
 ## Notes
 
-- Use Prisma only — no raw SQL / `$queryRaw` / `$executeRaw`.
-- Any index changes must go through Prisma migrations (`prisma migrate dev`), not `db push`, so dev and prod branches stay in sync.
-- Skipping: auth/middleware (Critical, separate feature), duplicate `getCollections` call removal (requires layout↔page restructure), `dashboard/page.tsx` component extraction (larger refactor), `loading.tsx`/Suspense (design work), inline-style standard clarification (discussion).
-- After changes: `npm run build` then `npm run lint` must pass before commit.
+<!-- Any extra notes -->
 
 ## History
 
@@ -40,3 +31,4 @@ Low-risk cleanup items surfaced by the code-scanner audit. Auth is intentionally
 - Dashboard Items — Real Data completed — pinned and recent items fetched from DB, icon/color from item type, tags displayed, mock data fully removed
 - Stats & Sidebar — Real Data completed — accurate stats from DB, system item types in sidebar (ordered/renamed), colored circle for recent collections, View all collections link added
 - Add Pro Badge to Sidebar completed — subtle outline PRO badge added to Files and Images item types in expanded sidebar using ShadCN Badge
+- Quick Wins from Code Audit completed — fixed N+1 in getSidebarItemTypes via Prisma _count, narrowed getCollections select, extracted ICON_MAP to src/lib/icons.ts, replaced TypeIcon React.createElement with JSX pattern, redirected / to /dashboard
