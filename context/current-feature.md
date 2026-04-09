@@ -1,28 +1,24 @@
-# Current Feature: Auth Phase 2 — Email/Password Credentials
+# Current Feature
+
+<!-- Feature name here -->
 
 ## Status
 
-In Progress
+<!-- Not Started|In Progress|Completed -->
+
+Not Started
 
 ## Goals
 
-- Add Credentials provider for email/password authentication
-- Add `password` field to User model via migration (if missing)
-- Update `auth.config.ts` with Credentials provider placeholder (`authorize: () => null`)
-- Override Credentials in `auth.ts` with real bcryptjs validation logic
-- Create `POST /api/auth/register` route (name, email, password, confirmPassword)
-- Validate passwords match, check existing user, hash with bcryptjs, create user
-- Verify email/password sign-in redirects to `/dashboard`
-- Verify GitHub OAuth still works
+<!-- Goals & requirements -->
 
 ## Notes
 
-- bcryptjs already installed
-- Split config pattern: placeholder in `auth.config.ts`, real logic in `auth.ts` (keeps edge runtime clean)
-- Register route returns `{ success, data, error }` style response
-- Reference: https://authjs.dev/getting-started/authentication/credentials
+<!-- Any extra notes -->
 
 ## History
+
+<!-- Keep this updated. Earliest to latest -->
 
 - Project setup and boilerplate cleanup
 - Mock data added for dashboard UI (`src/lib/mock-data.ts`)
@@ -37,3 +33,4 @@ In Progress
 - Add Pro Badge to Sidebar completed — subtle outline PRO badge added to Files and Images item types in expanded sidebar using ShadCN Badge
 - Quick Wins from Code Audit completed — fixed N+1 in getSidebarItemTypes via Prisma _count, narrowed getCollections select, extracted ICON_MAP to src/lib/icons.ts, replaced TypeIcon React.createElement with JSX pattern, redirected / to /dashboard
 - Auth Phase 1 completed — NextAuth v5 (beta) + Prisma adapter + GitHub OAuth; split edge config (auth.config.ts + auth.ts) with JWT strategy; proxy.ts protects /dashboard/* and redirects unauth users to sign-in; Session extended with user.id; added name/image fields to User model (+ migration) required by the Prisma adapter
+- Auth Phase 2 completed — Credentials provider added (placeholder in auth.config.ts, bcrypt validation in auth.ts); POST /api/auth/register route for user registration; email/password sign-in working alongside GitHub OAuth
