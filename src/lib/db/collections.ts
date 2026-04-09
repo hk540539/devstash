@@ -15,7 +15,10 @@ export async function getCollections(userId: string): Promise<CollectionWithMeta
     where: { userId },
     include: {
       items: {
-        include: { type: true },
+        select: {
+          typeId: true,
+          type: { select: { icon: true, color: true } },
+        },
       },
     },
     orderBy: { createdAt: "desc" },
