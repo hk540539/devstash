@@ -1,4 +1,4 @@
-# Current Feature: Auth Setup - NextAuth + GitHub Provider
+# Current Feature
 
 <!-- Feature name here -->
 
@@ -6,44 +6,15 @@
 
 <!-- Not Started|In Progress|Completed -->
 
-In Progress
+Not Started
 
 ## Goals
 
 <!-- Goals & requirements -->
 
-- Install NextAuth v5 (`next-auth@beta`) and `@auth/prisma-adapter`
-- Set up split auth config pattern for edge compatibility (`auth.config.ts` + `auth.ts`)
-- Add GitHub OAuth provider
-- Protect `/dashboard/*` routes via Next.js 16 proxy (`src/proxy.ts`)
-- Redirect unauthenticated users to NextAuth's default sign-in page
-- Extend Session type with `user.id` via `src/types/next-auth.d.ts`
-
 ## Notes
 
 <!-- Any extra notes -->
-
-**Files to create:**
-1. `src/auth.config.ts` — edge-compatible config (providers only, no adapter)
-2. `src/auth.ts` — full config with Prisma adapter + JWT strategy
-3. `src/app/api/auth/[...nextauth]/route.ts` — export handlers from auth.ts
-4. `src/proxy.ts` — route protection with redirect logic (named export: `export const proxy = auth(...)`)
-5. `src/types/next-auth.d.ts` — extend Session type with `user.id`
-
-**Gotchas:**
-- Use `next-auth@beta` (not `@latest` — that's v4)
-- `src/proxy.ts` must sit at same level as `app/`
-- Use `session: { strategy: 'jwt' }` with split config pattern
-- Do NOT set custom `pages.signIn` — use NextAuth's default
-- Verify latest conventions via Context7 before implementing
-
-**Env vars:** `AUTH_SECRET`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`
-
-**Testing:** `/dashboard` → redirect to sign-in → GitHub OAuth → redirect back to `/dashboard`.
-
-**References:**
-- Edge compatibility: https://authjs.dev/getting-started/installation#edge-compatibility
-- Prisma adapter: https://authjs.dev/getting-started/adapters/prisma
 
 ## History
 
@@ -61,3 +32,4 @@ In Progress
 - Stats & Sidebar — Real Data completed — accurate stats from DB, system item types in sidebar (ordered/renamed), colored circle for recent collections, View all collections link added
 - Add Pro Badge to Sidebar completed — subtle outline PRO badge added to Files and Images item types in expanded sidebar using ShadCN Badge
 - Quick Wins from Code Audit completed — fixed N+1 in getSidebarItemTypes via Prisma _count, narrowed getCollections select, extracted ICON_MAP to src/lib/icons.ts, replaced TypeIcon React.createElement with JSX pattern, redirected / to /dashboard
+- Auth Phase 1 completed — NextAuth v5 (beta) + Prisma adapter + GitHub OAuth; split edge config (auth.config.ts + auth.ts) with JWT strategy; proxy.ts protects /dashboard/* and redirects unauth users to sign-in; Session extended with user.id; added name/image fields to User model (+ migration) required by the Prisma adapter
