@@ -4,6 +4,7 @@ import GitHub from "next-auth/providers/github"
 import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
+import { EMAIL_VERIFICATION_ENABLED } from "@/lib/flags"
 import authConfig from "./auth.config"
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
@@ -46,7 +47,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
         if (!passwordMatch) return null
 
-        if (!user.emailVerified) {
+        if (EMAIL_VERIFICATION_ENABLED && !user.emailVerified) {
           throw new Error("EMAIL_NOT_VERIFIED")
         }
 

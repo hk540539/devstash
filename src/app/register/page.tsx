@@ -2,6 +2,7 @@ import { randomBytes } from 'crypto'
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 import { sendVerificationEmail } from '@/lib/email'
+import { EMAIL_VERIFICATION_ENABLED } from '@/lib/flags'
 import { RegisterForm } from './RegisterForm'
 
 export default function RegisterPage() {
@@ -38,24 +39,31 @@ export default function RegisterPage() {
 
     const hashedPassword = await bcrypt.hash(password, 12)
     await prisma.user.create({
-      data: { name, email, password: hashedPassword },
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        emailVerified: EMAIL_VERIFICATION_ENABLED ? null : new Date(),
+      },
     })
 
-    const token = randomBytes(32).toString('hex')
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+    if (EMAIL_VERIFICATION_ENABLED) {
+      const token = randomBytes(32).toString('hex')
+      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
 
-    await prisma.verificationToken.create({
-      data: { identifier: email, token, expires },
-    })
+      await prisma.verificationToken.create({
+        data: { identifier: email, token, expires },
+      })
 
-    try {
-      await sendVerificationEmail(email, token)
-    } catch (err) {
-      console.error('[register] email send failed:', err)
-      return { error: 'Account created but failed to send verification email. Please contact support.' }
+      try {
+        await sendVerificationEmail(email, token)
+      } catch (err) {
+        console.error('[register] email send failed:', err)
+        return { error: 'Account created but failed to send verification email. Please contact support.' }
+      }
     }
 
-    return { success: true }
+    return { success: true, verified: !EMAIL_VERIFICATION_ENABLED }
   }
 
   return <RegisterForm registerAction={registerAction} />

@@ -7,9 +7,9 @@ import { Input } from '@/components/ui/input'
 
 interface RegisterFormProps {
   registerAction: (
-    prevState: { error?: string; success?: boolean } | null,
+    prevState: { error?: string; success?: boolean; verified?: boolean } | null,
     formData: FormData
-  ) => Promise<{ error?: string; success?: boolean } | null>
+  ) => Promise<{ error?: string; success?: boolean; verified?: boolean } | null>
 }
 
 export function RegisterForm({ registerAction }: RegisterFormProps) {
@@ -22,13 +22,27 @@ export function RegisterForm({ registerAction }: RegisterFormProps) {
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold mx-auto">
             S
           </div>
-          <h1 className="text-2xl font-bold">Check your email</h1>
-          <p className="text-sm text-muted-foreground">
-            We sent a verification link to your email address. Click the link to activate your account before signing in.
-          </p>
-          <Link href="/sign-in">
-            <Button variant="outline" className="w-full">Back to sign in</Button>
-          </Link>
+          {state.verified ? (
+            <>
+              <h1 className="text-2xl font-bold">Account created!</h1>
+              <p className="text-sm text-muted-foreground">
+                Your account is ready. You can sign in now.
+              </p>
+              <Link href="/sign-in">
+                <Button className="w-full">Sign in</Button>
+              </Link>
+            </>
+          ) : (
+            <>
+              <h1 className="text-2xl font-bold">Check your email</h1>
+              <p className="text-sm text-muted-foreground">
+                We sent a verification link to your email address. Click the link to activate your account before signing in.
+              </p>
+              <Link href="/sign-in">
+                <Button variant="outline" className="w-full">Back to sign in</Button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
     )
