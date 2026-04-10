@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import {
   Layers,
@@ -7,10 +8,10 @@ import {
   Pin,
   type LucideIcon,
 } from 'lucide-react'
+import { auth } from '@/auth'
 import { getCollections } from '@/lib/db/collections'
 import { getStats, getPinnedItems, getRecentItems, type ItemWithMeta } from '@/lib/db/items'
 import { getIcon } from '@/lib/icons'
-import { prisma } from '@/lib/prisma'
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -127,17 +128,15 @@ function ItemRow({ item }: { item: ItemWithMeta }) {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function DashboardPage() {
-  // TODO: replace with session.user.id once auth is set up
-  const demoUser = await prisma.user.findUnique({
-    where: { email: 'hk540539@gmail.com' },
-    select: { id: true },
-  })
+  const session = await auth()
+  if (!session?.user?.id) redirect('/sign-in')
+  const userId = session.user.id
 
   const [collections, pinnedItems, recentItems, stats] = await Promise.all([
-    demoUser ? getCollections(demoUser.id) : [],
-    demoUser ? getPinnedItems(demoUser.id) : [],
-    demoUser ? getRecentItems(demoUser.id, 10) : [],
-    demoUser ? getStats(demoUser.id) : { totalItems: 0, totalCollections: 0, favoriteItems: 0, favoriteCollections: 0 },
+    getCollections(userId),
+    getPinnedItems(userId),
+    getRecentItems(userId, 10),
+    getStats(userId),
   ])
 
   const { totalItems, totalCollections, favoriteItems, favoriteCollections } = stats

@@ -1,4 +1,4 @@
-# Current Feature
+# Current Feature: Auth Phase 3 — Sign In, Register & Sign Out UI
 
 <!-- Feature name here -->
 
@@ -6,15 +6,27 @@
 
 <!-- Not Started|In Progress|Completed -->
 
-Not Started
+In Progress
 
 ## Goals
 
 <!-- Goals & requirements -->
 
+- Custom `/sign-in` page — email/password fields, "Sign in with GitHub" button, link to register, form validation + error display
+- Custom `/register` page — name, email, password, confirm password fields; client-side validation (passwords match, email format); submit to `/api/auth/register`; redirect to `/sign-in` on success
+- Update NextAuth to use custom pages (point `pages.signIn` to `/sign-in`)
+- Sidebar bottom — display user avatar (GitHub image or initials fallback), user name, dropdown on click with "Sign out" option, avatar click goes to `/profile`
+- Reusable avatar component: shows `image` if available, otherwise generates initials from name (e.g. "Brad Traversy" → "BT")
+
 ## Notes
 
 <!-- Any extra notes -->
+
+- Avatar initials logic: take first letter of each word in name, e.g. "Brad Traversy" → "BT"
+- Keep existing sidebar structure; update the bottom user section only
+- Use ShadCN components where applicable (DropdownMenu, Avatar, etc.)
+- Form state/validation should be client-side (`'use client'`)
+- Register page submits to existing `POST /api/auth/register` route
 
 ## History
 

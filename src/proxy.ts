@@ -1,21 +1,14 @@
-import NextAuth from "next-auth"
-import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
-import authConfig from "./auth.config"
+import { auth } from "@/auth"
 
-const { auth } = NextAuth(authConfig)
-
-export const proxy = auth((req: NextRequest & { auth: unknown }) => {
-  const isLoggedIn = !!req.auth
-  const isDashboard = req.nextUrl.pathname.startsWith("/dashboard")
-
-  if (isDashboard && !isLoggedIn) {
-    const signInUrl = new URL("/api/auth/signin", req.nextUrl.origin)
+// In Next.js 16, proxy.ts replaces middleware.ts and runs on Node.js runtime.
+// Using auth from @/auth directly — no edge compatibility workarounds needed.
+// Dashboard protection is also enforced server-side in layout.tsx.
+export const proxy = auth((req) => {
+  if (!req.auth && req.nextUrl.pathname.startsWith("/dashboard")) {
+    const signInUrl = new URL("/sign-in", req.nextUrl.origin)
     signInUrl.searchParams.set("callbackUrl", req.nextUrl.pathname)
-    return NextResponse.redirect(signInUrl)
+    return Response.redirect(signInUrl)
   }
-
-  return NextResponse.next()
 })
 
 export const config = {

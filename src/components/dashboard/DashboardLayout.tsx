@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import {
@@ -15,6 +15,13 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
   Search,
   Plus,
   PanelLeft,
@@ -22,6 +29,8 @@ import {
   ChevronDown,
   ChevronRight,
   Menu,
+  LogOut,
+  User,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getIcon } from '@/lib/icons'
@@ -194,41 +203,83 @@ function SidebarBody({ isCollapsed, itemTypes, collections }: SidebarBodyProps) 
   )
 }
 
+// ── UserAvatar ────────────────────────────────────────────────────────────────
+
+interface UserAvatarProps {
+  name: string
+  image?: string | null
+  className?: string
+}
+
+function UserAvatar({ name, image, className }: UserAvatarProps) {
+  const initials = name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+
+  return (
+    <Avatar className={cn('h-7 w-7 shrink-0', className)}>
+      {image && <AvatarImage src={image} alt={name} />}
+      <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+    </Avatar>
+  )
+}
+
+// ── UserFooter ────────────────────────────────────────────────────────────────
+
 interface UserFooterProps {
   name: string
   email: string
-  initials: string
+  image?: string | null
+  signOutAction: () => Promise<void>
 }
 
-function UserFooter({ name, email, initials }: UserFooterProps) {
+function UserFooter({ name, email, image, signOutAction }: UserFooterProps) {
   return (
-    <div className="flex items-center gap-2">
-      <Avatar className="h-7 w-7 shrink-0">
-        <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-      </Avatar>
-      <div className="flex-1 overflow-hidden">
-        <p className="truncate text-sm font-medium">{name}</p>
-        <p className="truncate text-xs text-muted-foreground">{email}</p>
-      </div>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <button className="flex w-full items-center gap-2 rounded-md p-1 hover:bg-sidebar-accent" />
+        }
+      >
+        <UserAvatar name={name} image={image} />
+        <div className="flex-1 overflow-hidden text-left">
+          <p className="truncate text-sm font-medium">{name}</p>
+          <p className="truncate text-xs text-muted-foreground">{email}</p>
+        </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent side="top" align="start" className="w-52">
+        <DropdownMenuItem render={<Link href="/profile" />}>
+          <User className="h-4 w-4" />
+          Profile
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem render={<form action={signOutAction} />}>
+          <button type="submit" className="flex w-full items-center gap-1.5">
+            <LogOut className="h-4 w-4" />
+            Sign out
+          </button>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
+
+// ── DashboardLayout ───────────────────────────────────────────────────────────
 
 interface DashboardLayoutProps {
   children: React.ReactNode
   itemTypes: SidebarItemType[]
   collections: CollectionWithMeta[]
-  user: { name: string; email: string }
+  user: { name: string; email: string; image?: string | null }
+  signOutAction: () => Promise<void>
 }
 
-export function DashboardLayout({ children, itemTypes, collections, user }: DashboardLayoutProps) {
+export function DashboardLayout({ children, itemTypes, collections, user, signOutAction }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
-
-  const userInitials = user.name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
 
   return (
     <TooltipProvider delay={300}>
@@ -257,7 +308,7 @@ export function DashboardLayout({ children, itemTypes, collections, user }: Dash
                   <SidebarBody isCollapsed={false} itemTypes={itemTypes} collections={collections} />
                 </div>
                 <div className="border-t border-sidebar-border p-3">
-                  <UserFooter name={user.name} email={user.email} initials={userInitials} />
+                  <UserFooter name={user.name} email={user.email} image={user.image} signOutAction={signOutAction} />
                 </div>
               </div>
             </SheetContent>
@@ -328,13 +379,11 @@ export function DashboardLayout({ children, itemTypes, collections, user }: Dash
               )}
             >
               {isSidebarOpen ? (
-                <UserFooter name={user.name} email={user.email} initials={userInitials} />
+                <UserFooter name={user.name} email={user.email} image={user.image} signOutAction={signOutAction} />
               ) : (
                 <Tooltip>
                   <TooltipTrigger render={<span className="cursor-pointer" />}>
-                    <Avatar className="h-7 w-7">
-                      <AvatarFallback className="text-xs">{userInitials}</AvatarFallback>
-                    </Avatar>
+                    <UserAvatar name={user.name} image={user.image} />
                   </TooltipTrigger>
                   <TooltipContent side="right">
                     <p className="font-medium">{user.name}</p>
