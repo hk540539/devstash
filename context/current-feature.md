@@ -1,36 +1,14 @@
-# Current Feature: Auth Phase 3 — Sign In, Register & Sign Out UI
-
-<!-- Feature name here -->
+# Current Feature
 
 ## Status
 
-<!-- Not Started|In Progress|Completed -->
-
-In Progress
+Not Started
 
 ## Goals
 
-<!-- Goals & requirements -->
-
-- Custom `/sign-in` page — email/password fields, "Sign in with GitHub" button, link to register, form validation + error display
-- Custom `/register` page — name, email, password, confirm password fields; client-side validation (passwords match, email format); submit to `/api/auth/register`; redirect to `/sign-in` on success
-- Update NextAuth to use custom pages (point `pages.signIn` to `/sign-in`)
-- Sidebar bottom — display user avatar (GitHub image or initials fallback), user name, dropdown on click with "Sign out" option, avatar click goes to `/profile`
-- Reusable avatar component: shows `image` if available, otherwise generates initials from name (e.g. "Brad Traversy" → "BT")
-
 ## Notes
 
-<!-- Any extra notes -->
-
-- Avatar initials logic: take first letter of each word in name, e.g. "Brad Traversy" → "BT"
-- Keep existing sidebar structure; update the bottom user section only
-- Use ShadCN components where applicable (DropdownMenu, Avatar, etc.)
-- Form state/validation should be client-side (`'use client'`)
-- Register page submits to existing `POST /api/auth/register` route
-
 ## History
-
-<!-- Keep this updated. Earliest to latest -->
 
 - Project setup and boilerplate cleanup
 - Mock data added for dashboard UI (`src/lib/mock-data.ts`)
@@ -46,3 +24,5 @@ In Progress
 - Quick Wins from Code Audit completed — fixed N+1 in getSidebarItemTypes via Prisma _count, narrowed getCollections select, extracted ICON_MAP to src/lib/icons.ts, replaced TypeIcon React.createElement with JSX pattern, redirected / to /dashboard
 - Auth Phase 1 completed — NextAuth v5 (beta) + Prisma adapter + GitHub OAuth; split edge config (auth.config.ts + auth.ts) with JWT strategy; proxy.ts protects /dashboard/* and redirects unauth users to sign-in; Session extended with user.id; added name/image fields to User model (+ migration) required by the Prisma adapter
 - Auth Phase 2 completed — Credentials provider added (placeholder in auth.config.ts, bcrypt validation in auth.ts); POST /api/auth/register route for user registration; email/password sign-in working alongside GitHub OAuth
+- Auth Phase 3 completed — Custom /sign-in and /register pages (Server Actions, useActionState); reusable UserAvatar (image or initials); sidebar dropdown with sign out; dashboard wired to real session; GitHub OAuth iss fix in route handler; proxy.ts simplified to standard Next.js 16 pattern
+- Email Verification on Register completed — Resend SDK integration; verification token generated and stored in VerificationToken table (24h expiry); email sent on register; /verify-email page validates token and marks user verified; credentials sign-in blocked until emailVerified is set; clear error message shown on sign-in for unverified accounts
