@@ -34,7 +34,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email as string },
-          select: { id: true, name: true, email: true, image: true, password: true },
+          select: { id: true, name: true, email: true, image: true, password: true, emailVerified: true },
         })
 
         if (!user || !user.password) return null
@@ -45,6 +45,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         )
 
         if (!passwordMatch) return null
+
+        if (!user.emailVerified) {
+          throw new Error("EMAIL_NOT_VERIFIED")
+        }
 
         return { id: user.id, name: user.name, email: user.email, image: user.image }
       },

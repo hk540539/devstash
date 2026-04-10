@@ -22,12 +22,12 @@ export function RegisterForm({ registerAction }: RegisterFormProps) {
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold mx-auto">
             S
           </div>
-          <h1 className="text-2xl font-bold">Account created!</h1>
+          <h1 className="text-2xl font-bold">Check your email</h1>
           <p className="text-sm text-muted-foreground">
-            Your account has been created successfully.
+            We sent a verification link to your email address. Click the link to activate your account before signing in.
           </p>
           <Link href="/sign-in">
-            <Button className="w-full">Sign in</Button>
+            <Button variant="outline" className="w-full">Back to sign in</Button>
           </Link>
         </div>
       </div>
