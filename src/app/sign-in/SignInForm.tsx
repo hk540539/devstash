@@ -66,7 +66,15 @@ export function SignInForm({ callbackUrl, credentialsAction, githubAction }: Sig
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium" htmlFor="password">Password</label>
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium" htmlFor="password">Password</label>
+              <Link
+                href="/forgot-password"
+                className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <Input
               id="password"
               name="password"
