@@ -256,6 +256,55 @@ export async function updateItemById(
   };
 }
 
+export type CreateItemData = {
+  title: string;
+  description: string | null;
+  content: string | null;
+  url: string | null;
+  language: string | null;
+  typeId: string;
+  tags: string[];
+};
+
+export async function createItemInDb(
+  userId: string,
+  data: CreateItemData,
+): Promise<ItemWithMeta> {
+  const item = await prisma.$transaction(async (tx) => {
+    const tagIds = await Promise.all(
+      data.tags.map(async (name) => {
+        const tag = await tx.tag.upsert({
+          where: { userId_name: { userId, name } },
+          create: { name, userId },
+          update: {},
+        });
+        return tag.id;
+      }),
+    );
+
+    const created = await tx.item.create({
+      data: {
+        title: data.title,
+        description: data.description,
+        content: data.content,
+        url: data.url,
+        language: data.language,
+        contentType: "text",
+        userId,
+        typeId: data.typeId,
+        tags: tagIds.length > 0
+          ? { create: tagIds.map((tagId) => ({ tagId })) }
+          : undefined,
+      },
+      select: itemSelect,
+    });
+
+    return created;
+  });
+
+  return mapItem(item);
+}
+
 export async function deleteItemById(
   id: string,
   userId: string,

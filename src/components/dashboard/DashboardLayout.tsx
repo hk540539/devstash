@@ -23,7 +23,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import {
   Search,
-  Plus,
   PanelLeft,
   Star,
   ChevronDown,
@@ -34,6 +33,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getIcon } from '@/lib/icons'
+import { NewItemDialog } from '@/components/items/NewItemDialog'
 import type { SidebarItemType } from '@/lib/db/items'
 import type { CollectionWithMeta } from '@/lib/db/collections'
 
@@ -323,10 +323,7 @@ export function DashboardLayout({ children, itemTypes, collections, user, signOu
             <Button variant="outline" size="sm" className="hidden sm:flex">
               New Collection
             </Button>
-            <Button size="sm">
-              <Plus className="h-4 w-4" />
-              <span className="hidden sm:inline">New Item</span>
-            </Button>
+            <NewItemDialog itemTypes={itemTypes} />
           </div>
         </header>
 
