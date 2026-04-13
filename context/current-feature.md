@@ -1,48 +1,12 @@
-# Current Feature: Rate Limiting for Auth
+# Current Feature
 
 ## Status
 
-Complete
+Not Started
 
 ## Goals
 
-- Add rate limiting to all auth-related API routes to prevent brute force and abuse
-- Use Upstash Redis with `@upstash/ratelimit` (serverless-compatible)
-- Create reusable `src/lib/rate-limit.ts` utility
-- Return 429 responses with `Retry-After` header on limit exceeded
-- Display user-friendly error messages via toast on the frontend
-- Rate limiting should fail open (allow request if Upstash is unavailable)
-
 ## Notes
-
-### Endpoints to Protect
-
-| Endpoint | Limit | Window | Key By |
-|---|---|---|---|
-| `/api/auth/callback/credentials` (login) | 5 attempts | 15 min | IP + email |
-| `/api/auth/register` | 3 attempts | 1 hour | IP |
-| `/api/auth/forgot-password` | 3 attempts | 1 hour | IP |
-| `/api/auth/reset-password` | 5 attempts | 15 min | IP |
-| `/api/auth/resend-verification` | 3 attempts | 15 min | IP + email |
-
-### Implementation Details
-
-- Use sliding window algorithm
-- Extract IP from `x-forwarded-for` header (Vercel) or request
-- Combine IP + email where applicable for tighter limits
-- Login limiting with NextAuth credentials may need a custom sign-in handler
-
-### Environment Variables Needed
-
-```
-UPSTASH_REDIS_REST_URL=
-UPSTASH_REDIS_REST_TOKEN=
-```
-
-### Error Format
-
-- API: `{ error: "Too many attempts. Please try again in X minutes." }` with 429 status + `Retry-After` header
-- Upstash free tier: 10k requests/day (sufficient for auth limiting)
 
 ## History
 
@@ -65,3 +29,4 @@ UPSTASH_REDIS_REST_TOKEN=
 - Email Verification Toggle completed — EMAIL_VERIFICATION_ENABLED env var (default true); centralised in src/lib/flags.ts; when false: user created as pre-verified, token/email skipped, sign-in check bypassed, success screen shows "Account created" instead of "Check your email"
 - Forgot Password completed — "Forgot password?" link on sign-in; /forgot-password page sends reset email via Resend; /reset-password page validates token (prefixed identifier password-reset:<email>), hashes new password, deletes token in transaction; no user enumeration on forgot form; 1 hour token expiry; reuses VerificationToken model
 - Profile Page completed — /profile route with clean URL; (app) route group created so /dashboard and /profile share the sidebar layout; AlertDialog component added from @base-ui/react; profile data fetching in src/lib/db/profile.ts; two-column layout with avatar, account details, usage stats (total + per type), change password (email users only), delete account with confirmation dialog
+- Rate Limiting for Auth completed — Upstash Redis + @upstash/ratelimit sliding-window limits on sign-in (5/15min by IP+email), register (3/hr by IP), forgot-password (3/hr by IP), reset-password (5/15min by IP), new /api/auth/resend-verification route (3/15min by IP+email); reusable src/lib/rate-limit.ts utility; fails open when Redis is unavailable
