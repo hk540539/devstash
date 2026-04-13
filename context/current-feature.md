@@ -1,28 +1,12 @@
-# Current Feature: Item Drawer — Edit Mode
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Edit button in drawer action bar toggles inline edit mode (same drawer stays open)
-- Edit mode replaces action bar with Save + Cancel buttons
-- Cancel discards changes and returns to view mode
-- Save persists via server action, returns to view mode, refreshes drawer data, shows toast
-- Editable fields for all types: Title (required), Description, Tags (comma-separated input)
-- Type-specific fields: Content textarea (snippet/prompt/command/note), Language input (snippet/command), URL input (link)
-- Non-editable in edit mode: item type, collections, dates
-- `updateItem` server action in `src/actions/items.ts` with Zod validation and `{ success, data, error }` pattern
-- `updateItemById` query in `src/lib/db/items.ts` — disconnect/reconnect tags, returns updated `ItemDetail`
-- After save, call `router.refresh()` so the underlying card list reflects changes
-
 ## Notes
-
-- No form library — controlled inputs with local state
-- Disable Save when title is empty (client-side guard only; Zod is source of truth)
-- Content textarea is plain — no code editor yet
-- Zod schema: title (non-empty, trimmed), description (string|null), content (string|null), url (valid URL|null), language (string|null), tags (trimmed non-empty string[])
 
 ## History
 
@@ -48,3 +32,4 @@ In Progress
 - Rate Limiting for Auth completed — Upstash Redis + @upstash/ratelimit sliding-window limits on sign-in (5/15min by IP+email), register (3/hr by IP), forgot-password (3/hr by IP), reset-password (5/15min by IP), new /api/auth/resend-verification route (3/15min by IP+email); reusable src/lib/rate-limit.ts utility; fails open when Redis is unavailable
 - Items List View completed — dynamic `/items/[type]` route; `getItemsByType` + `getTypeLabelFromSlug` in `src/lib/db/items.ts`; `ItemCard` with colored left border; responsive 1→2→3 column grid; Command type added to SIDEBAR_TYPE_ORDER; Vitest set up for utilities and server actions (`npm test`)
 - Item Drawer completed — right-side Sheet drawer opens on ItemCard/ItemRow click; `getItemById` + `ItemDetail` type in `src/lib/db/items.ts`; `GET /api/items/[id]` with auth check; skeleton loading state; action bar (Favorite yellow when active, Pin, Copy, Edit, Delete); description, content, URL, tags, collection, and details sections; `ItemsGridWithDrawer` client wrapper for items list page; `DashboardItemsWithDrawer` client wrapper for dashboard; `ItemRow` extracted to its own component
+- Item Drawer Edit Mode completed — Edit button toggles inline edit mode in drawer; `DrawerEdit` with controlled inputs for title, description, tags, and type-specific fields (content/language/url); Save/Cancel bar replaces action bar; `updateItem` server action in `src/actions/items.ts` with Zod validation; `updateItemById` in `src/lib/db/items.ts` with transactional tag disconnect/reconnect; Sonner toasts on success/error; `router.refresh()` syncs card list after save
