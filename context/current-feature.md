@@ -1,24 +1,12 @@
-# Current Feature: Item Drawer
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Right-side slide-in drawer (shadcn Sheet) opens when clicking an ItemCard
-- Works on both dashboard and items list pages
-- Action bar with Favorite (star, yellow when active), Pin, Copy, Edit (pencil), and Delete (trash, right-aligned)
-- Client wrapper component manages drawer state (pages are server components)
-- Fetch full item detail on click via `/api/items/[id]` — no page navigation
-- Show skeleton/loading state while fetching
-- `getItemById` query in `src/lib/db/items.ts`, API route calls it with auth check
-
 ## Notes
-
-- Card data already fetched by server components — only full detail (content, collections, language, etc.) fetched on click
-- Code editor and item-specific content display comes in a later feature — focus on drawer shell and detail display only
-- Reference design: `context/screenshots/dashboard-ui-drawer.png`
 
 ## History
 
@@ -43,3 +31,4 @@ In Progress
 - Profile Page completed — /profile route with clean URL; (app) route group created so /dashboard and /profile share the sidebar layout; AlertDialog component added from @base-ui/react; profile data fetching in src/lib/db/profile.ts; two-column layout with avatar, account details, usage stats (total + per type), change password (email users only), delete account with confirmation dialog
 - Rate Limiting for Auth completed — Upstash Redis + @upstash/ratelimit sliding-window limits on sign-in (5/15min by IP+email), register (3/hr by IP), forgot-password (3/hr by IP), reset-password (5/15min by IP), new /api/auth/resend-verification route (3/15min by IP+email); reusable src/lib/rate-limit.ts utility; fails open when Redis is unavailable
 - Items List View completed — dynamic `/items/[type]` route; `getItemsByType` + `getTypeLabelFromSlug` in `src/lib/db/items.ts`; `ItemCard` with colored left border; responsive 1→2→3 column grid; Command type added to SIDEBAR_TYPE_ORDER; Vitest set up for utilities and server actions (`npm test`)
+- Item Drawer completed — right-side Sheet drawer opens on ItemCard/ItemRow click; `getItemById` + `ItemDetail` type in `src/lib/db/items.ts`; `GET /api/items/[id]` with auth check; skeleton loading state; action bar (Favorite yellow when active, Pin, Copy, Edit, Delete); description, content, URL, tags, collection, and details sections; `ItemsGridWithDrawer` client wrapper for items list page; `DashboardItemsWithDrawer` client wrapper for dashboard; `ItemRow` extracted to its own component
