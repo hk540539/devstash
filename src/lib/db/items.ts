@@ -183,6 +183,79 @@ export type ItemDetail = ItemWithMeta & {
   collection: { id: string; name: string } | null;
 };
 
+export type UpdateItemData = {
+  title: string;
+  description: string | null;
+  content: string | null;
+  url: string | null;
+  language: string | null;
+  tags: string[];
+};
+
+export async function updateItemById(
+  id: string,
+  userId: string,
+  data: UpdateItemData,
+): Promise<ItemDetail> {
+  const item = await prisma.$transaction(async (tx) => {
+    // Disconnect all existing tags
+    await tx.itemTag.deleteMany({ where: { itemId: id } });
+
+    // Upsert each tag and collect IDs
+    const tagIds = await Promise.all(
+      data.tags.map(async (name) => {
+        const tag = await tx.tag.upsert({
+          where: { userId_name: { userId, name } },
+          create: { name, userId },
+          update: {},
+        });
+        return tag.id;
+      }),
+    );
+
+    // Reconnect new tags
+    if (tagIds.length > 0) {
+      await tx.itemTag.createMany({
+        data: tagIds.map((tagId) => ({ itemId: id, tagId })),
+      });
+    }
+
+    return tx.item.update({
+      where: { id },
+      data: {
+        title: data.title,
+        description: data.description,
+        content: data.content,
+        url: data.url,
+        language: data.language,
+      },
+      select: {
+        ...itemSelect,
+        content: true,
+        url: true,
+        language: true,
+        fileName: true,
+        fileUrl: true,
+        fileSize: true,
+        updatedAt: true,
+        collection: { select: { id: true, name: true } },
+      },
+    });
+  });
+
+  return {
+    ...mapItem(item),
+    content: item.content,
+    url: item.url,
+    language: item.language,
+    fileName: item.fileName,
+    fileUrl: item.fileUrl,
+    fileSize: item.fileSize,
+    updatedAt: item.updatedAt,
+    collection: item.collection ?? null,
+  };
+}
+
 export async function getItemById(
   id: string,
   userId: string,
