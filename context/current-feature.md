@@ -1,24 +1,12 @@
-# Current Feature: Item Delete
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Delete button in the item drawer triggers a ShadCN AlertDialog confirmation prompt
-- On confirmation, item is deleted and the drawer closes
-- A Sonner toast is shown on successful deletion
-- The items list/dashboard refreshes to reflect the deletion
-- Server action `deleteItem` with auth check and Zod validation
-- `deleteItemById` in `src/lib/db/items.ts` handles the DB deletion
-
 ## Notes
-
-- Use the existing ShadCN AlertDialog pattern (already used in the profile page for account deletion)
-- Reuse the `{ success, error }` return pattern from existing server actions
-- The Delete button already exists in the drawer action bar — wire it up
-- After delete, close the drawer and call `router.refresh()` to sync the list
 
 ## History
 
@@ -45,3 +33,4 @@ In Progress
 - Items List View completed — dynamic `/items/[type]` route; `getItemsByType` + `getTypeLabelFromSlug` in `src/lib/db/items.ts`; `ItemCard` with colored left border; responsive 1→2→3 column grid; Command type added to SIDEBAR_TYPE_ORDER; Vitest set up for utilities and server actions (`npm test`)
 - Item Drawer completed — right-side Sheet drawer opens on ItemCard/ItemRow click; `getItemById` + `ItemDetail` type in `src/lib/db/items.ts`; `GET /api/items/[id]` with auth check; skeleton loading state; action bar (Favorite yellow when active, Pin, Copy, Edit, Delete); description, content, URL, tags, collection, and details sections; `ItemsGridWithDrawer` client wrapper for items list page; `DashboardItemsWithDrawer` client wrapper for dashboard; `ItemRow` extracted to its own component
 - Item Drawer Edit Mode completed — Edit button toggles inline edit mode in drawer; `DrawerEdit` with controlled inputs for title, description, tags, and type-specific fields (content/language/url); Save/Cancel bar replaces action bar; `updateItem` server action in `src/actions/items.ts` with Zod validation; `updateItemById` in `src/lib/db/items.ts` with transactional tag disconnect/reconnect; Sonner toasts on success/error; `router.refresh()` syncs card list after save
+- Item Delete completed — Delete button in drawer opens AlertDialog confirmation; `deleteItem` server action with auth check; `deleteItemById` in `src/lib/db/items.ts`; Sonner toast on success; drawer closes and list refreshes via `router.refresh()`
