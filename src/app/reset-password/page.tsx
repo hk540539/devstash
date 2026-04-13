@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
 import bcrypt from 'bcryptjs'
+import { headers } from 'next/headers'
 import { prisma } from '@/lib/prisma'
+import { rateLimit, getIPFromHeaders, rateLimitMessage } from '@/lib/rate-limit'
 import { ResetPasswordForm } from './ResetPasswordForm'
 
 interface ResetPasswordPageProps {
@@ -43,6 +45,12 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
     formData: FormData
   ) {
     'use server'
+    const ip = getIPFromHeaders(await headers())
+    const rl = await rateLimit('resetPassword', ip)
+    if (!rl.success) {
+      return { error: rateLimitMessage(rl.reset) }
+    }
+
     const token = formData.get('token') as string
     const password = formData.get('password') as string
     const confirmPassword = formData.get('confirmPassword') as string
