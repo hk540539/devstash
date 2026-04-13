@@ -1,20 +1,28 @@
-import { Star, Pin } from 'lucide-react'
-import { getIcon } from '@/lib/icons'
-import type { ItemWithMeta } from '@/lib/db/items'
+"use client";
 
-export function ItemCard({ item }: { item: ItemWithMeta }) {
-  const Icon = getIcon(item.type.icon)
-  const color = item.type.color
+import { Star, Pin } from "lucide-react";
+import { getIcon } from "@/lib/icons";
+import type { ItemWithMeta } from "@/lib/db/items";
 
-  const date = new Date(item.createdAt).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  })
+interface ItemCardProps {
+  item: ItemWithMeta;
+  onClick?: () => void;
+}
+
+export function ItemCard({ item, onClick }: ItemCardProps) {
+  const Icon = getIcon(item.type.icon);
+  const color = item.type.color;
+
+  const date = new Date(item.createdAt).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
 
   return (
     <div
-      className="rounded-lg border border-border bg-card p-4 flex flex-col gap-2 border-l-[3px]"
+      className="rounded-lg border border-border bg-card p-4 flex flex-col gap-2 border-l-[3px] cursor-pointer hover:bg-muted/40 transition-colors"
       style={{ borderLeftColor: color }}
+      onClick={onClick}
     >
       {/* Header */}
       <div className="flex items-start gap-3">
@@ -40,7 +48,9 @@ export function ItemCard({ item }: { item: ItemWithMeta }) {
             </p>
           )}
         </div>
-        <span className="shrink-0 text-xs text-muted-foreground pt-0.5">{date}</span>
+        <span className="shrink-0 text-xs text-muted-foreground pt-0.5">
+          {date}
+        </span>
       </div>
 
       {/* Tags */}
@@ -57,5 +67,5 @@ export function ItemCard({ item }: { item: ItemWithMeta }) {
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -171,3 +171,48 @@ export function getTypeLabelFromSlug(slug: string): string | null {
   );
   return entry?.displayName ?? null;
 }
+
+export type ItemDetail = ItemWithMeta & {
+  content: string | null;
+  url: string | null;
+  language: string | null;
+  fileName: string | null;
+  fileUrl: string | null;
+  fileSize: number | null;
+  updatedAt: Date;
+  collection: { id: string; name: string } | null;
+};
+
+export async function getItemById(
+  id: string,
+  userId: string,
+): Promise<ItemDetail | null> {
+  const item = await prisma.item.findFirst({
+    where: { id, userId },
+    select: {
+      ...itemSelect,
+      content: true,
+      url: true,
+      language: true,
+      fileName: true,
+      fileUrl: true,
+      fileSize: true,
+      updatedAt: true,
+      collection: { select: { id: true, name: true } },
+    },
+  });
+
+  if (!item) return null;
+
+  return {
+    ...mapItem(item),
+    content: item.content,
+    url: item.url,
+    language: item.language,
+    fileName: item.fileName,
+    fileUrl: item.fileUrl,
+    fileSize: item.fileSize,
+    updatedAt: item.updatedAt,
+    collection: item.collection ?? null,
+  };
+}

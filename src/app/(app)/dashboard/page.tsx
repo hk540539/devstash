@@ -1,17 +1,17 @@
-import { redirect } from 'next/navigation'
-import Link from 'next/link'
+import { redirect } from "next/navigation";
+import Link from "next/link";
 import {
   Layers,
   FolderOpen,
   Star,
   Bookmark,
-  Pin,
   type LucideIcon,
-} from 'lucide-react'
-import { auth } from '@/auth'
-import { getCollections } from '@/lib/db/collections'
-import { getStats, getPinnedItems, getRecentItems, type ItemWithMeta } from '@/lib/db/items'
-import { getIcon } from '@/lib/icons'
+} from "lucide-react";
+import { auth } from "@/auth";
+import { getCollections } from "@/lib/db/collections";
+import { getStats, getPinnedItems, getRecentItems } from "@/lib/db/items";
+import { getIcon } from "@/lib/icons";
+import { DashboardItemsWithDrawer } from "@/components/items/DashboardItemsWithDrawer";
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -20,9 +20,9 @@ function StatCard({
   value,
   icon: Icon,
 }: {
-  label: string
-  value: number
-  icon: LucideIcon
+  label: string;
+  value: number;
+  icon: LucideIcon;
 }) {
   return (
     <div className="rounded-lg border border-border bg-card p-4 flex items-center gap-4">
@@ -34,13 +34,13 @@ function StatCard({
         <p className="text-sm text-muted-foreground">{label}</p>
       </div>
     </div>
-  )
+  );
 }
 
 function CollectionCard({
   collection,
 }: {
-  collection: Awaited<ReturnType<typeof getCollections>>[number]
+  collection: Awaited<ReturnType<typeof getCollections>>[number];
 }) {
   return (
     <div
@@ -56,7 +56,7 @@ function CollectionCard({
         </div>
       </div>
       <p className="text-xs text-muted-foreground">
-        {collection.itemCount} {collection.itemCount === 1 ? 'item' : 'items'}
+        {collection.itemCount} {collection.itemCount === 1 ? "item" : "items"}
       </p>
       {collection.description && (
         <p className="text-sm text-muted-foreground line-clamp-1">
@@ -65,84 +65,30 @@ function CollectionCard({
       )}
       <div className="mt-auto flex items-center gap-1.5 pt-1">
         {collection.typeIcons.map((iconName, i) => {
-          const Icon = getIcon(iconName)
-          return <Icon key={i} className="h-3.5 w-3.5 text-muted-foreground" />
+          const Icon = getIcon(iconName);
+          return <Icon key={i} className="h-3.5 w-3.5 text-muted-foreground" />;
         })}
       </div>
     </div>
-  )
-}
-
-function ItemRow({ item }: { item: ItemWithMeta }) {
-  const iconColor = item.type.color
-
-  const date = new Date(item.createdAt).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  })
-
-  const Icon = getIcon(item.type.icon)
-
-  return (
-    <div
-      className="flex items-start gap-3 rounded-lg border border-border bg-card p-3 border-l-[3px]"
-      style={{ borderLeftColor: iconColor }}
-    >
-      <div
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md"
-        style={{ backgroundColor: `${iconColor}20` }}
-      >
-        {/* eslint-disable-next-line react-hooks/static-components */}
-        <Icon className="h-4 w-4" style={{ color: iconColor }} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5">
-          <span className="font-medium text-sm truncate">{item.title}</span>
-          {item.isFavorite && (
-            <Star className="h-3.5 w-3.5 shrink-0 fill-yellow-400 text-yellow-400" />
-          )}
-          {item.isPinned && (
-            <Pin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-          )}
-        </div>
-        {item.description && (
-          <p className="text-xs text-muted-foreground mt-0.5 truncate">
-            {item.description}
-          </p>
-        )}
-        {item.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-1.5">
-            {item.tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-      <span className="shrink-0 text-xs text-muted-foreground pt-0.5">{date}</span>
-    </div>
-  )
+  );
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function DashboardPage() {
-  const session = await auth()
-  if (!session?.user?.id) redirect('/sign-in')
-  const userId = session.user.id
+  const session = await auth();
+  if (!session?.user?.id) redirect("/sign-in");
+  const userId = session.user.id;
 
   const [collections, pinnedItems, recentItems, stats] = await Promise.all([
     getCollections(userId),
     getPinnedItems(userId),
     getRecentItems(userId, 10),
     getStats(userId),
-  ])
+  ]);
 
-  const { totalItems, totalCollections, favoriteItems, favoriteCollections } = stats
+  const { totalItems, totalCollections, favoriteItems, favoriteCollections } =
+    stats;
 
   return (
     <div className="space-y-8">
@@ -159,7 +105,11 @@ export default async function DashboardPage() {
         <StatCard label="Total Items" value={totalItems} icon={Layers} />
         <StatCard label="Collections" value={totalCollections} icon={FolderOpen} />
         <StatCard label="Favorite Items" value={favoriteItems} icon={Star} />
-        <StatCard label="Favorite Collections" value={favoriteCollections} icon={Bookmark} />
+        <StatCard
+          label="Favorite Collections"
+          value={favoriteCollections}
+          icon={Bookmark}
+        />
       </div>
 
       {/* Collections */}
@@ -184,34 +134,11 @@ export default async function DashboardPage() {
         )}
       </section>
 
-      {/* Pinned */}
-      {pinnedItems.length > 0 && (
-        <section>
-          <div className="flex items-center gap-2 mb-4">
-            <Pin className="h-4 w-4 text-muted-foreground" />
-            <h2 className="text-lg font-semibold">Pinned</h2>
-          </div>
-          <div className="space-y-2">
-            {pinnedItems.map((item) => (
-              <ItemRow key={item.id} item={item} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Recent Items */}
-      <section>
-        <h2 className="text-lg font-semibold mb-4">Recent Items</h2>
-        {recentItems.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No items yet.</p>
-        ) : (
-          <div className="space-y-2">
-            {recentItems.map((item) => (
-              <ItemRow key={item.id} item={item} />
-            ))}
-          </div>
-        )}
-      </section>
+      {/* Pinned + Recent Items (client wrapper for drawer) */}
+      <DashboardItemsWithDrawer
+        pinnedItems={pinnedItems}
+        recentItems={recentItems}
+      />
     </div>
-  )
+  );
 }
