@@ -1,8 +1,10 @@
 import { randomBytes } from 'crypto'
 import bcrypt from 'bcryptjs'
+import { headers } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 import { sendVerificationEmail } from '@/lib/email'
 import { EMAIL_VERIFICATION_ENABLED } from '@/lib/flags'
+import { rateLimit, getIPFromHeaders, rateLimitMessage } from '@/lib/rate-limit'
 import { RegisterForm } from './RegisterForm'
 
 export default function RegisterPage() {
@@ -11,6 +13,12 @@ export default function RegisterPage() {
     formData: FormData
   ) {
     'use server'
+    const ip = getIPFromHeaders(await headers())
+    const rl = await rateLimit('register', ip)
+    if (!rl.success) {
+      return { error: rateLimitMessage(rl.reset) }
+    }
+
     const name = formData.get('name') as string
     const email = formData.get('email') as string
     const password = formData.get('password') as string

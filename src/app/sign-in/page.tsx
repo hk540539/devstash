@@ -1,5 +1,7 @@
 import { AuthError } from 'next-auth'
+import { headers } from 'next/headers'
 import { signIn } from '@/auth'
+import { rateLimit, getIPFromHeaders, rateLimitMessage } from '@/lib/rate-limit'
 import { SignInForm } from './SignInForm'
 
 interface SignInPageProps {
@@ -14,6 +16,13 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
     formData: FormData
   ) {
     'use server'
+    const email = (formData.get('email') as string)?.trim().toLowerCase() ?? ''
+    const ip = getIPFromHeaders(await headers())
+    const rl = await rateLimit('login', `${ip}:${email}`)
+    if (!rl.success) {
+      return { error: rateLimitMessage(rl.reset) }
+    }
+
     const redirectTo = (formData.get('callbackUrl') as string) || '/dashboard'
     try {
       await signIn('credentials', {

@@ -1,6 +1,8 @@
 import { randomBytes } from 'crypto'
+import { headers } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 import { sendPasswordResetEmail } from '@/lib/email'
+import { rateLimit, getIPFromHeaders, rateLimitMessage } from '@/lib/rate-limit'
 import { ForgotPasswordForm } from './ForgotPasswordForm'
 
 export default function ForgotPasswordPage() {
@@ -9,6 +11,12 @@ export default function ForgotPasswordPage() {
     formData: FormData
   ) {
     'use server'
+    const ip = getIPFromHeaders(await headers())
+    const rl = await rateLimit('forgotPassword', ip)
+    if (!rl.success) {
+      return { error: rateLimitMessage(rl.reset) }
+    }
+
     const email = (formData.get('email') as string)?.trim().toLowerCase()
 
     if (!email) {
