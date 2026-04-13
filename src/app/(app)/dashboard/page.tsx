@@ -44,8 +44,8 @@ function CollectionCard({
 }) {
   return (
     <div
-      className="rounded-lg border bg-card p-4 flex flex-col gap-2"
-      style={{ borderColor: `${collection.dominantColor}60` }}
+      className="rounded-lg border border-border bg-card p-4 flex flex-col gap-2 border-l-[3px]"
+      style={{ borderLeftColor: collection.dominantColor }}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-1.5 min-w-0">
@@ -84,7 +84,10 @@ function ItemRow({ item }: { item: ItemWithMeta }) {
   const Icon = getIcon(item.type.icon)
 
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
+    <div
+      className="flex items-start gap-3 rounded-lg border border-border bg-card p-3 border-l-[3px]"
+      style={{ borderLeftColor: iconColor }}
+    >
       <div
         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md"
         style={{ backgroundColor: `${iconColor}20` }}
