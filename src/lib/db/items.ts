@@ -14,6 +14,7 @@ export type SidebarItemType = {
 const SIDEBAR_TYPE_ORDER: Array<{ dbName: string; displayName: string; isPro?: boolean }> = [
   { dbName: "Snippet", displayName: "Snippets" },
   { dbName: "Prompt",  displayName: "Prompts"  },
+  { dbName: "Command", displayName: "Commands" },
   { dbName: "Note",    displayName: "Notes"    },
   { dbName: "File",    displayName: "Files",   isPro: true },
   { dbName: "Image",   displayName: "Images",  isPro: true },
@@ -142,4 +143,31 @@ export async function getRecentItems(
     take: limit,
   });
   return items.map(mapItem);
+}
+
+// Slug → typeId map derived from SIDEBAR_TYPE_ORDER
+const SLUG_TO_TYPE_ID: Record<string, string> = Object.fromEntries(
+  SIDEBAR_TYPE_ORDER.map(({ dbName }) => [dbName.toLowerCase() + "s", dbName.toLowerCase()]),
+);
+
+export async function getItemsByType(
+  userId: string,
+  slug: string,
+): Promise<ItemWithMeta[]> {
+  const typeId = SLUG_TO_TYPE_ID[slug];
+  if (!typeId) return [];
+
+  const items = await prisma.item.findMany({
+    where: { userId, typeId },
+    select: itemSelect,
+    orderBy: { createdAt: "desc" },
+  });
+  return items.map(mapItem);
+}
+
+export function getTypeLabelFromSlug(slug: string): string | null {
+  const entry = SIDEBAR_TYPE_ORDER.find(
+    ({ dbName }) => dbName.toLowerCase() + "s" === slug,
+  );
+  return entry?.displayName ?? null;
 }
