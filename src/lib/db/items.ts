@@ -256,6 +256,13 @@ export async function updateItemById(
   };
 }
 
+export async function deleteItemById(
+  id: string,
+  userId: string,
+): Promise<void> {
+  await prisma.item.delete({ where: { id, userId } });
+}
+
 export async function getItemById(
   id: string,
   userId: string,

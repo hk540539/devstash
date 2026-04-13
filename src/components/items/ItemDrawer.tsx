@@ -18,9 +18,19 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
 import { getIcon } from "@/lib/icons";
-import { updateItem } from "@/actions/items";
+import { updateItem, deleteItem } from "@/actions/items";
 import type { ItemDetail } from "@/lib/db/items";
 
 // ── Type helpers ──────────────────────────────────────────────────────────────
@@ -66,9 +76,11 @@ function DrawerSkeleton() {
 function DrawerDetail({
   item,
   onEdit,
+  onDelete,
 }: {
   item: ItemDetail;
   onEdit: () => void;
+  onDelete: () => void;
 }) {
   const createdDate = new Date(item.createdAt).toLocaleDateString("en-US", {
 
@@ -119,12 +131,35 @@ function DrawerDetail({
           <Pencil className="h-3.5 w-3.5" />
           <span>Edit</span>
         </button>
-        <button
-          className="ml-auto flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium hover:bg-destructive/10 transition-colors text-destructive"
-          title="Delete"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </button>
+        <AlertDialog>
+          <AlertDialogTrigger
+            className="ml-auto flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium hover:bg-destructive/10 transition-colors text-destructive"
+            title="Delete"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete item?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete &ldquo;{item.title}&rdquo;. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogClose
+                className="rounded-md px-3 py-1.5 text-sm font-medium border border-border hover:bg-muted transition-colors"
+              >
+                Cancel
+              </AlertDialogClose>
+              <AlertDialogClose
+                onClick={onDelete}
+                className="rounded-md px-3 py-1.5 text-sm font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
+              >
+                Delete
+              </AlertDialogClose>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       {/* Scrollable body */}
@@ -455,6 +490,18 @@ export function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
     router.refresh();
   }
 
+  async function handleDelete() {
+    if (!item) return;
+    const result = await deleteItem(item.id);
+    if (result.success) {
+      toast.success("Item deleted");
+      handleClose();
+      router.refresh();
+    } else {
+      toast.error(result.error);
+    }
+  }
+
   const Icon = item ? getIcon(item.type.icon) : null;
   const color = item?.type.color;
 
@@ -510,7 +557,7 @@ export function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
               onSaved={handleSaved}
             />
           ) : item ? (
-            <DrawerDetail item={item} onEdit={() => setEditing(true)} />
+            <DrawerDetail item={item} onEdit={() => setEditing(true)} onDelete={handleDelete} />
           ) : null}
         </div>
       </SheetContent>

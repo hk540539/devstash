@@ -1,12 +1,24 @@
-# Current Feature
+# Current Feature: Item Delete
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
+- Delete button in the item drawer triggers a ShadCN AlertDialog confirmation prompt
+- On confirmation, item is deleted and the drawer closes
+- A Sonner toast is shown on successful deletion
+- The items list/dashboard refreshes to reflect the deletion
+- Server action `deleteItem` with auth check and Zod validation
+- `deleteItemById` in `src/lib/db/items.ts` handles the DB deletion
+
 ## Notes
+
+- Use the existing ShadCN AlertDialog pattern (already used in the profile page for account deletion)
+- Reuse the `{ success, error }` return pattern from existing server actions
+- The Delete button already exists in the drawer action bar — wire it up
+- After delete, close the drawer and call `router.refresh()` to sync the list
 
 ## History
 

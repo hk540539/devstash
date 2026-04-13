@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { auth } from "@/auth";
-import { updateItemById } from "@/lib/db/items";
+import { updateItemById, deleteItemById } from "@/lib/db/items";
 import type { ItemDetail } from "@/lib/db/items";
 
 const UpdateItemSchema = z.object({
@@ -41,6 +41,22 @@ type UpdateItemInput = {
 type ActionResult =
   | { success: true; data: ItemDetail }
   | { success: false; error: string };
+
+type DeleteResult = { success: true } | { success: false; error: string };
+
+export async function deleteItem(itemId: string): Promise<DeleteResult> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    await deleteItemById(itemId, session.user.id);
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to delete item. Please try again." };
+  }
+}
 
 export async function updateItem(
   itemId: string,
