@@ -90,6 +90,18 @@ Example v4 configuration:
 - Return `{ success, data, error }` pattern from actions
 - Display user-friendly error messages via toast
 
+## Testing
+
+- **Framework**: Vitest — configured in `vitest.config.ts`
+- **Scope**: Unit tests for utilities (`src/lib/`) and server actions (`src/actions/`) only — no component tests
+- **File naming**: Co-locate test files alongside the module — `utils.ts` → `utils.test.ts`
+- **Commands**:
+  - `npm test` — run all tests once
+  - `npm run test:watch` — watch mode during development
+  - `npm run test:coverage` — generate coverage report
+- **Mocking**: Mock external dependencies (Prisma, Redis, Resend) in action tests; utility tests should need no mocks
+- Write tests for new utilities and server actions as part of the feature workflow
+
 ## Code Quality
 
 - No commented-out code unless specified
