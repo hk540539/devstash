@@ -32,6 +32,7 @@ import { Separator } from "@/components/ui/separator";
 import { getIcon } from "@/lib/icons";
 import { updateItem, deleteItem } from "@/actions/items";
 import type { ItemDetail } from "@/lib/db/items";
+import { CodeEditor } from "@/components/ui/code-editor";
 
 // ── Type helpers ──────────────────────────────────────────────────────────────
 
@@ -73,6 +74,8 @@ function DrawerSkeleton() {
 
 // ── View mode ─────────────────────────────────────────────────────────────────
 
+const CODE_EDITOR_TYPES = ["Snippet", "Command"];
+
 function DrawerDetail({
   item,
   onEdit,
@@ -82,6 +85,7 @@ function DrawerDetail({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const isCodeType = CODE_EDITOR_TYPES.includes(item.type.name);
   const createdDate = new Date(item.createdAt).toLocaleDateString("en-US", {
 
     month: "long",
@@ -180,9 +184,17 @@ function DrawerDetail({
             <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
               Content
             </p>
-            <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto whitespace-pre-wrap break-words leading-relaxed">
-              {item.content}
-            </pre>
+            {isCodeType ? (
+              <CodeEditor
+                value={item.content}
+                language={item.language ?? "plaintext"}
+                readOnly
+              />
+            ) : (
+              <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto whitespace-pre-wrap break-words leading-relaxed">
+                {item.content}
+              </pre>
+            )}
           </section>
         )}
 
@@ -288,6 +300,7 @@ function DrawerEdit({
   const showContent = CONTENT_TYPES.includes(typeName);
   const showLanguage = LANGUAGE_TYPES.includes(typeName);
   const showUrl = URL_TYPES.includes(typeName);
+  const useCodeEditor = CODE_EDITOR_TYPES.includes(typeName);
 
   function set(field: keyof EditForm) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -376,13 +389,21 @@ function DrawerEdit({
         {showContent && (
           <div>
             <p className={labelCls}>Content</p>
-            <textarea
-              className={`${inputCls} font-mono resize-none`}
-              rows={8}
-              value={form.content}
-              onChange={set("content")}
-              placeholder="Paste your content here"
-            />
+            {useCodeEditor ? (
+              <CodeEditor
+                value={form.content}
+                onChange={(val) => setForm((prev) => ({ ...prev, content: val }))}
+                language={form.language || "plaintext"}
+              />
+            ) : (
+              <textarea
+                className={`${inputCls} font-mono resize-none`}
+                rows={8}
+                value={form.content}
+                onChange={set("content")}
+                placeholder="Paste your content here"
+              />
+            )}
           </div>
         )}
 
