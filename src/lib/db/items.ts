@@ -145,20 +145,26 @@ export async function getRecentItems(
   return items.map(mapItem);
 }
 
-// Slug → typeId map derived from SIDEBAR_TYPE_ORDER
-const SLUG_TO_TYPE_ID: Record<string, string> = Object.fromEntries(
-  SIDEBAR_TYPE_ORDER.map(({ dbName }) => [dbName.toLowerCase() + "s", dbName.toLowerCase()]),
+// Slug → DB type name derived from SIDEBAR_TYPE_ORDER
+const SLUG_TO_DB_NAME: Record<string, string> = Object.fromEntries(
+  SIDEBAR_TYPE_ORDER.map(({ dbName }) => [dbName.toLowerCase() + "s", dbName]),
 );
 
 export async function getItemsByType(
   userId: string,
   slug: string,
 ): Promise<ItemWithMeta[]> {
-  const typeId = SLUG_TO_TYPE_ID[slug];
-  if (!typeId) return [];
+  const dbName = SLUG_TO_DB_NAME[slug];
+  if (!dbName) return [];
+
+  const itemType = await prisma.itemType.findFirst({
+    where: { name: dbName, isSystem: true },
+    select: { id: true },
+  });
+  if (!itemType) return [];
 
   const items = await prisma.item.findMany({
-    where: { userId, typeId },
+    where: { userId, typeId: itemType.id },
     select: itemSelect,
     orderBy: { createdAt: "desc" },
   });

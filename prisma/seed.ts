@@ -8,14 +8,24 @@ const prisma = new PrismaClient({ adapter })
 
 // ── System Item Types ─────────────────────────────────────────────────────────
 
+const TYPE_IDS = {
+  snippet: "a1b2c3d4-0001-0001-0001-000000000001",
+  prompt:  "a1b2c3d4-0001-0001-0001-000000000002",
+  command: "a1b2c3d4-0001-0001-0001-000000000003",
+  note:    "a1b2c3d4-0001-0001-0001-000000000004",
+  file:    "a1b2c3d4-0001-0001-0001-000000000005",
+  image:   "a1b2c3d4-0001-0001-0001-000000000006",
+  link:    "a1b2c3d4-0001-0001-0001-000000000007",
+}
+
 const SYSTEM_TYPES = [
-  { id: "snippet", name: "Snippet", icon: "Code",       color: "#3b82f6" },
-  { id: "prompt",  name: "Prompt",  icon: "Sparkles",   color: "#8b5cf6" },
-  { id: "command", name: "Command", icon: "Terminal",   color: "#f97316" },
-  { id: "note",    name: "Note",    icon: "StickyNote", color: "#fde047" },
-  { id: "file",    name: "File",    icon: "File",       color: "#6b7280" },
-  { id: "image",   name: "Image",   icon: "Image",      color: "#ec4899" },
-  { id: "link",    name: "Link",    icon: "Link",       color: "#10b981" },
+  { id: "a1b2c3d4-0001-0001-0001-000000000001", name: "Snippet", icon: "Code",       color: "#3b82f6" },
+  { id: "a1b2c3d4-0001-0001-0001-000000000002", name: "Prompt",  icon: "Sparkles",   color: "#8b5cf6" },
+  { id: "a1b2c3d4-0001-0001-0001-000000000003", name: "Command", icon: "Terminal",   color: "#f97316" },
+  { id: "a1b2c3d4-0001-0001-0001-000000000004", name: "Note",    icon: "StickyNote", color: "#fde047" },
+  { id: "a1b2c3d4-0001-0001-0001-000000000005", name: "File",    icon: "File",       color: "#6b7280" },
+  { id: "a1b2c3d4-0001-0001-0001-000000000006", name: "Image",   icon: "Image",      color: "#ec4899" },
+  { id: "a1b2c3d4-0001-0001-0001-000000000007", name: "Link",    icon: "Link",       color: "#10b981" },
 ]
 
 // ── Main ──────────────────────────────────────────────────────────────────────
@@ -86,7 +96,7 @@ export function useDebounce<T>(value: T, delay: number): T {
 
   return debouncedValue
 }`,
-      typeId: "snippet",
+      typeId: TYPE_IDS.snippet,
       collectionId: reactPatterns.id,
       userId: user.id,
       isFavorite: true,
@@ -125,7 +135,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 
   return [storedValue, setValue] as const
 }`,
-      typeId: "snippet",
+      typeId: TYPE_IDS.snippet,
       collectionId: reactPatterns.id,
       userId: user.id,
     },
@@ -177,7 +187,7 @@ function TabPanel({ id, children }: { id: string; children: ReactNode }) {
 Tabs.Tab = Tab
 Tabs.Panel = TabPanel
 export { Tabs }`,
-      typeId: "snippet",
+      typeId: TYPE_IDS.snippet,
       collectionId: reactPatterns.id,
       userId: user.id,
     },
@@ -218,7 +228,7 @@ Be concise. Lead with the most critical issues first.
 \`\`\`
 [PASTE CODE HERE]
 \`\`\``,
-      typeId: "prompt",
+      typeId: TYPE_IDS.prompt,
       collectionId: aiWorkflows.id,
       userId: user.id,
       isFavorite: true,
@@ -246,7 +256,7 @@ Output as JSDoc comments directly above the function, and a short markdown secti
 \`\`\`
 [PASTE CODE HERE]
 \`\`\``,
-      typeId: "prompt",
+      typeId: TYPE_IDS.prompt,
       collectionId: aiWorkflows.id,
       userId: user.id,
     },
@@ -273,7 +283,7 @@ Show the refactored version and a short explanation of the key changes made.
 \`\`\`
 [PASTE CODE HERE]
 \`\`\``,
-      typeId: "prompt",
+      typeId: TYPE_IDS.prompt,
       collectionId: aiWorkflows.id,
       userId: user.id,
     },
@@ -327,7 +337,7 @@ USER nextjs
 EXPOSE 3000
 ENV PORT=3000
 CMD ["node", "server.js"]`,
-      typeId: "snippet",
+      typeId: TYPE_IDS.snippet,
       collectionId: devops.id,
       userId: user.id,
     },
@@ -342,7 +352,7 @@ CMD ["node", "server.js"]`,
       description: "Run migrations and restart the app in production",
       contentType: "text",
       content: `npx prisma migrate deploy && npm run start`,
-      typeId: "command",
+      typeId: TYPE_IDS.command,
       collectionId: devops.id,
       userId: user.id,
     },
@@ -357,7 +367,7 @@ CMD ["node", "server.js"]`,
       description: "Official GitHub Actions documentation",
       contentType: "text",
       url: "https://docs.github.com/en/actions",
-      typeId: "link",
+      typeId: TYPE_IDS.link,
       collectionId: devops.id,
       userId: user.id,
     },
@@ -372,7 +382,7 @@ CMD ["node", "server.js"]`,
       description: "Official Docker docs — references, guides, and CLI",
       contentType: "text",
       url: "https://docs.docker.com",
-      typeId: "link",
+      typeId: TYPE_IDS.link,
       collectionId: devops.id,
       userId: user.id,
     },
@@ -429,7 +439,7 @@ CMD ["node", "server.js"]`,
         description: cmd.description,
         contentType: "text",
         content: cmd.content,
-        typeId: "command",
+        typeId: TYPE_IDS.command,
         collectionId: terminal.id,
         userId: user.id,
       },
@@ -486,7 +496,7 @@ CMD ["node", "server.js"]`,
         description: link.description,
         contentType: "text",
         url: link.url,
-        typeId: "link",
+        typeId: TYPE_IDS.link,
         collectionId: design.id,
         userId: user.id,
       },
