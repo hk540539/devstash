@@ -1,29 +1,12 @@
-# Current Feature: Item Create
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- "New Item" button in the top bar opens a ShadCN Dialog modal
-- Type selector lets user pick from: Snippet, Prompt, Command, Note, Link
-- Fields shown based on selected type:
-  - All types: title (required), description, tags
-  - Snippet / Command: content, language
-  - Prompt / Note: content
-  - Link: URL (required)
-- `createItem` server action with Zod validation and auth check
-- `createItemInDb` (or similar) query function in `src/lib/db/items.ts`
-- Sonner toast on success, modal closes, list refreshes via `router.refresh()`
-
 ## Notes
-
-- Use the existing ShadCN Dialog component pattern
-- Reuse `{ success, error }` return pattern from existing server actions
-- Tag input: comma-separated string (same pattern as DrawerEdit)
-- File and Image types are Pro-only — exclude from the type selector for now
-- After creation the drawer does not need to open; just refresh the list
 
 ## History
 
@@ -51,3 +34,4 @@ In Progress
 - Item Drawer completed — right-side Sheet drawer opens on ItemCard/ItemRow click; `getItemById` + `ItemDetail` type in `src/lib/db/items.ts`; `GET /api/items/[id]` with auth check; skeleton loading state; action bar (Favorite yellow when active, Pin, Copy, Edit, Delete); description, content, URL, tags, collection, and details sections; `ItemsGridWithDrawer` client wrapper for items list page; `DashboardItemsWithDrawer` client wrapper for dashboard; `ItemRow` extracted to its own component
 - Item Drawer Edit Mode completed — Edit button toggles inline edit mode in drawer; `DrawerEdit` with controlled inputs for title, description, tags, and type-specific fields (content/language/url); Save/Cancel bar replaces action bar; `updateItem` server action in `src/actions/items.ts` with Zod validation; `updateItemById` in `src/lib/db/items.ts` with transactional tag disconnect/reconnect; Sonner toasts on success/error; `router.refresh()` syncs card list after save
 - Item Delete completed — Delete button in drawer opens AlertDialog confirmation; `deleteItem` server action with auth check; `deleteItemById` in `src/lib/db/items.ts`; Sonner toast on success; drawer closes and list refreshes via `router.refresh()`
+- Item Create completed — "New Item" button in top bar opens Dialog modal; type selector (Snippet/Prompt/Command/Note/Link); conditional fields per type (content, language, URL); `createItem` server action with Zod validation; `createItemInDb` with transactional tag upsert; Dialog primitive built on `@base-ui/react`; toast on success and `router.refresh()`
