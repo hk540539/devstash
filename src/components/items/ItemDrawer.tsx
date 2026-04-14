@@ -33,11 +33,13 @@ import { getIcon } from "@/lib/icons";
 import { updateItem, deleteItem } from "@/actions/items";
 import type { ItemDetail } from "@/lib/db/items";
 import { CodeEditor } from "@/components/ui/code-editor";
+import { MarkdownEditor } from "@/components/ui/markdown-editor";
 
 // ── Type helpers ──────────────────────────────────────────────────────────────
 
 const CONTENT_TYPES = ["Snippet", "Prompt", "Command", "Note"];
 const LANGUAGE_TYPES = ["Snippet", "Command"];
+const MARKDOWN_TYPES = ["Note", "Prompt"];
 const URL_TYPES = ["Link"];
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
@@ -86,6 +88,7 @@ function DrawerDetail({
   onDelete: () => void;
 }) {
   const isCodeType = CODE_EDITOR_TYPES.includes(item.type.name);
+  const isMarkdownType = MARKDOWN_TYPES.includes(item.type.name);
   const createdDate = new Date(item.createdAt).toLocaleDateString("en-US", {
 
     month: "long",
@@ -190,6 +193,8 @@ function DrawerDetail({
                 language={item.language ?? "plaintext"}
                 readOnly
               />
+            ) : isMarkdownType ? (
+              <MarkdownEditor value={item.content} readOnly />
             ) : (
               <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto whitespace-pre-wrap break-words leading-relaxed">
                 {item.content}
@@ -301,6 +306,7 @@ function DrawerEdit({
   const showLanguage = LANGUAGE_TYPES.includes(typeName);
   const showUrl = URL_TYPES.includes(typeName);
   const useCodeEditor = CODE_EDITOR_TYPES.includes(typeName);
+  const useMarkdownEditor = MARKDOWN_TYPES.includes(typeName);
 
   function set(field: keyof EditForm) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -394,6 +400,11 @@ function DrawerEdit({
                 value={form.content}
                 onChange={(val) => setForm((prev) => ({ ...prev, content: val }))}
                 language={form.language || "plaintext"}
+              />
+            ) : useMarkdownEditor ? (
+              <MarkdownEditor
+                value={form.content}
+                onChange={(val) => setForm((prev) => ({ ...prev, content: val }))}
               />
             ) : (
               <textarea

@@ -15,12 +15,14 @@ import {
 } from "@/components/ui/dialog";
 import { createItem } from "@/actions/items";
 import { CodeEditor } from "@/components/ui/code-editor";
+import { MarkdownEditor } from "@/components/ui/markdown-editor";
 import { CREATABLE_TYPES, type CreatableType } from "@/lib/item-types";
 
 export { CREATABLE_TYPES, type CreatableType };
 
 const CONTENT_TYPES: CreatableType[] = ["Snippet", "Prompt", "Command", "Note"];
 const LANGUAGE_TYPES: CreatableType[] = ["Snippet", "Command"];
+const MARKDOWN_TYPES: CreatableType[] = ["Note", "Prompt"];
 const URL_TYPES: CreatableType[] = ["Link"];
 
 type ItemTypeOption = { id: string; name: string; slug: string };
@@ -59,6 +61,7 @@ export function NewItemDialog({ itemTypes, defaultType }: NewItemDialogProps) {
   const showLanguage = LANGUAGE_TYPES.includes(selectedType);
   const showUrl = URL_TYPES.includes(selectedType);
   const useCodeEditor = LANGUAGE_TYPES.includes(selectedType);
+  const useMarkdownEditor = MARKDOWN_TYPES.includes(selectedType);
 
   function set(field: keyof FormState) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -204,6 +207,11 @@ export function NewItemDialog({ itemTypes, defaultType }: NewItemDialogProps) {
                     value={form.content}
                     onChange={(val) => setForm((prev) => ({ ...prev, content: val }))}
                     language={form.language || "plaintext"}
+                  />
+                ) : useMarkdownEditor ? (
+                  <MarkdownEditor
+                    value={form.content}
+                    onChange={(val) => setForm((prev) => ({ ...prev, content: val }))}
                   />
                 ) : (
                   <textarea
