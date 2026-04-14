@@ -1,7 +1,9 @@
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@/auth";
-import { getItemsByType, getTypeLabelFromSlug } from "@/lib/db/items";
+import { getItemsByType, getTypeLabelFromSlug, getSidebarItemTypes } from "@/lib/db/items";
 import { ItemsGridWithDrawer } from "@/components/items/ItemsGridWithDrawer";
+import { NewItemDialog } from "@/components/items/NewItemDialog";
+import { CREATABLE_TYPES, type CreatableType } from "@/lib/item-types";
 
 export default async function ItemsByTypePage({
   params,
@@ -16,15 +18,29 @@ export default async function ItemsByTypePage({
   const label = getTypeLabelFromSlug(type);
   if (!label) notFound();
 
-  const items = await getItemsByType(session.user.id, type);
+  // Derive singular db name from plural display label (e.g. "Snippets" → "Snippet")
+  const singularName = label.slice(0, -1);
+  const creatableType = (CREATABLE_TYPES as readonly string[]).includes(singularName)
+    ? (singularName as CreatableType)
+    : null;
+
+  const [items, itemTypes] = await Promise.all([
+    getItemsByType(session.user.id, type),
+    creatableType ? getSidebarItemTypes(session.user.id) : Promise.resolve([]),
+  ]);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">{label}</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {items.length} {items.length === 1 ? "item" : "items"}
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">{label}</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {items.length} {items.length === 1 ? "item" : "items"}
+          </p>
+        </div>
+        {creatableType && (
+          <NewItemDialog itemTypes={itemTypes} defaultType={creatableType} />
+        )}
       </div>
 
       <ItemsGridWithDrawer

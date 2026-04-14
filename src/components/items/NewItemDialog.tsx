@@ -14,10 +14,10 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { createItem } from "@/actions/items";
+import { CodeEditor } from "@/components/ui/code-editor";
+import { CREATABLE_TYPES, type CreatableType } from "@/lib/item-types";
 
-// Types that can be created (File/Image excluded — Pro only)
-const CREATABLE_TYPES = ["Snippet", "Prompt", "Command", "Note", "Link"] as const;
-type CreatableType = (typeof CREATABLE_TYPES)[number];
+export { CREATABLE_TYPES, type CreatableType };
 
 const CONTENT_TYPES: CreatableType[] = ["Snippet", "Prompt", "Command", "Note"];
 const LANGUAGE_TYPES: CreatableType[] = ["Snippet", "Command"];
@@ -27,6 +27,7 @@ type ItemTypeOption = { id: string; name: string; slug: string };
 
 interface NewItemDialogProps {
   itemTypes: ItemTypeOption[];
+  defaultType?: CreatableType;
 }
 
 type FormState = {
@@ -47,16 +48,17 @@ const EMPTY_FORM: FormState = {
   tags: "",
 };
 
-export function NewItemDialog({ itemTypes }: NewItemDialogProps) {
+export function NewItemDialog({ itemTypes, defaultType }: NewItemDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [selectedType, setSelectedType] = useState<CreatableType>("Snippet");
+  const [selectedType, setSelectedType] = useState<CreatableType>(defaultType ?? "Snippet");
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
 
   const showContent = CONTENT_TYPES.includes(selectedType);
   const showLanguage = LANGUAGE_TYPES.includes(selectedType);
   const showUrl = URL_TYPES.includes(selectedType);
+  const useCodeEditor = LANGUAGE_TYPES.includes(selectedType);
 
   function set(field: keyof FormState) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -66,7 +68,7 @@ export function NewItemDialog({ itemTypes }: NewItemDialogProps) {
   function handleOpenChange(isOpen: boolean) {
     if (!isOpen) {
       setForm(EMPTY_FORM);
-      setSelectedType("Snippet");
+      setSelectedType(defaultType ?? "Snippet");
     }
     setOpen(isOpen);
   }
@@ -101,7 +103,7 @@ export function NewItemDialog({ itemTypes }: NewItemDialogProps) {
       toast.success("Item created");
       setOpen(false);
       setForm(EMPTY_FORM);
-      setSelectedType("Snippet");
+      setSelectedType(defaultType ?? "Snippet");
       router.refresh();
     } else {
       toast.error(result.error);
@@ -180,17 +182,38 @@ export function NewItemDialog({ itemTypes }: NewItemDialogProps) {
               />
             </div>
 
+            {/* Language — shown before content for code types so editor picks it up */}
+            {showLanguage && (
+              <div>
+                <p className={labelCls}>Language</p>
+                <input
+                  className={inputCls}
+                  value={form.language}
+                  onChange={set("language")}
+                  placeholder="e.g. typescript"
+                />
+              </div>
+            )}
+
             {/* Content */}
             {showContent && (
               <div>
                 <p className={labelCls}>Content</p>
-                <textarea
-                  className={`${inputCls} font-mono resize-none`}
-                  rows={6}
-                  value={form.content}
-                  onChange={set("content")}
-                  placeholder="Paste your content here"
-                />
+                {useCodeEditor ? (
+                  <CodeEditor
+                    value={form.content}
+                    onChange={(val) => setForm((prev) => ({ ...prev, content: val }))}
+                    language={form.language || "plaintext"}
+                  />
+                ) : (
+                  <textarea
+                    className={`${inputCls} font-mono resize-none`}
+                    rows={6}
+                    value={form.content}
+                    onChange={set("content")}
+                    placeholder="Paste your content here"
+                  />
+                )}
               </div>
             )}
 
@@ -204,19 +227,6 @@ export function NewItemDialog({ itemTypes }: NewItemDialogProps) {
                   value={form.url}
                   onChange={set("url")}
                   placeholder="https://example.com"
-                />
-              </div>
-            )}
-
-            {/* Language */}
-            {showLanguage && (
-              <div>
-                <p className={labelCls}>Language</p>
-                <input
-                  className={inputCls}
-                  value={form.language}
-                  onChange={set("language")}
-                  placeholder="e.g. typescript"
                 />
               </div>
             )}
