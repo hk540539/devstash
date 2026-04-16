@@ -1,21 +1,12 @@
-# Current Feature: Image Gallery View
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Replace the regular item card with an image thumbnail card on the `/items/images` page
-- Show images in a 3-column grid/gallery layout
-- Display each image with a 16:9 aspect ratio (`aspect-video`) using `object-cover` (may crop edges)
-- Add a subtle hover zoom effect (5% scale, 300ms transition)
-
 ## Notes
-
-- Only applies to the Images item type page — other item type pages keep the existing `ItemCard`
-- The thumbnail should serve the image via the existing `/api/download/[...key]` proxy (authenticated)
-- Keep the drawer open-on-click behavior intact (clicking a thumbnail still opens the `ItemDrawer`)
 
 ## History
 
@@ -47,3 +38,4 @@ In Progress
 - Item Create completed — "New Item" button in top bar opens Dialog modal; type selector (Snippet/Prompt/Command/Note/Link); conditional fields per type (content, language, URL); `createItem` server action with Zod validation; `createItemInDb` with transactional tag upsert; Dialog primitive built on `@base-ui/react`; toast on success and `router.refresh()`
 - Code Editor completed — Monaco Editor (`@monaco-editor/react`) replaces Textarea for Snippet and Command types in drawer view, drawer edit, and New Item dialog; `CodeEditor` component with vs-dark theme, macOS traffic-light dots, copy button, language label, fluid height (150–400px); `CREATABLE_TYPES` extracted to `src/lib/item-types.ts` (server-safe); type-specific New Item button on `/items/[type]` pages with type preselected; vitest config fixed to use `vite-tsconfig-paths` as plugin
 - File & Image Upload completed — `@aws-sdk/client-s3` + Supabase S3-compatible storage; `src/lib/s3.ts` singleton client; `POST /api/upload` with type/size validation (5 MB max); `GET /api/download/[...key]` authenticated proxy with ownership check; `FileUpload` component with drag-and-drop, XHR progress bar, post-upload download button; NewItemDialog supports File and Image types (upload required before create, type switch clears upload); ItemDrawer shows image preview and file name/size/download; `deleteItemById` cleans up S3 on item delete; Prisma transactions use `maxWait/timeout` for Neon serverless stability
+- Image Gallery View completed — `ImageThumbnailCard` with `aspect-video`, `object-cover`, 5% hover zoom (300ms transition); `ItemsGridWithDrawer` accepts `layout` prop; `/items/images` renders gallery layout, all other type pages unchanged; `fileUrl` + `fileName` added to `ItemWithMeta` and `itemSelect`; drawer open-on-click preserved
