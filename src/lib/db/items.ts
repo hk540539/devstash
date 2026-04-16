@@ -1,6 +1,24 @@
-import { prisma } from "@/lib/prisma";
+import { prisma, type PrismaTransactionClient } from "@/lib/prisma";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { s3, S3_BUCKET } from "@/lib/s3";
+
+/** Upsert tags for a user and return their IDs */
+async function upsertTagIds(
+  tx: PrismaTransactionClient,
+  userId: string,
+  tags: string[],
+): Promise<string[]> {
+  return Promise.all(
+    tags.map(async (name) => {
+      const tag = await tx.tag.upsert({
+        where: { userId_name: { userId, name } },
+        create: { name, userId },
+        update: {},
+      });
+      return tag.id;
+    }),
+  );
+}
 
 export type SidebarItemType = {
   id: string;
@@ -228,19 +246,8 @@ export async function updateItemById(
     // Disconnect all existing tags
     await tx.itemTag.deleteMany({ where: { itemId: id } });
 
-    // Upsert each tag and collect IDs
-    const tagIds = await Promise.all(
-      data.tags.map(async (name) => {
-        const tag = await tx.tag.upsert({
-          where: { userId_name: { userId, name } },
-          create: { name, userId },
-          update: {},
-        });
-        return tag.id;
-      }),
-    );
-
     // Reconnect new tags
+    const tagIds = await upsertTagIds(tx, userId, data.tags);
     if (tagIds.length > 0) {
       await tx.itemTag.createMany({
         data: tagIds.map((tagId) => ({ itemId: id, tagId })),
@@ -303,16 +310,7 @@ export async function createItemInDb(
   const isFile = data.fileKey !== null;
   const txOptions = { maxWait: 10000, timeout: 30000 };
   const item = await prisma.$transaction(async (tx) => {
-    const tagIds = await Promise.all(
-      data.tags.map(async (name) => {
-        const tag = await tx.tag.upsert({
-          where: { userId_name: { userId, name } },
-          create: { name, userId },
-          update: {},
-        });
-        return tag.id;
-      }),
-    );
+    const tagIds = await upsertTagIds(tx, userId, data.tags);
 
     const created = await tx.item.create({
       data: {

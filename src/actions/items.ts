@@ -4,24 +4,13 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { updateItemById, deleteItemById, createItemInDb } from "@/lib/db/items";
 import type { ItemDetail, ItemWithMeta } from "@/lib/db/items";
+import { urlField } from "@/lib/schemas/items";
 
 const CreateItemSchema = z.object({
   title: z.string().trim().min(1, "Title is required"),
   description: z.string().trim().optional().transform((v) => v || null),
   content: z.string().optional().transform((v) => v || null),
-  url: z
-    .string()
-    .optional()
-    .transform((v) => v?.trim() || null)
-    .pipe(
-      z
-        .string()
-        .refine(
-          (v) => { try { new URL(v); return true; } catch { return false; } },
-          { message: "Must be a valid URL" },
-        )
-        .nullable(),
-    ),
+  url: urlField,
   language: z.string().trim().optional().transform((v) => v?.trim() || null),
   typeId: z.string().min(1, "Type is required"),
   tags: z.array(z.string().trim().min(1)).default([]),
@@ -85,22 +74,7 @@ const UpdateItemSchema = z.object({
   title: z.string().trim().min(1, "Title is required"),
   description: z.string().trim().nullable().optional().transform((v) => v ?? null),
   content: z.string().nullable().optional().transform((v) => v ?? null),
-  url: z
-    .string()
-    .optional()
-    .nullable()
-    .transform((v) => (v?.trim() === "" ? null : v?.trim() ?? null))
-    .pipe(
-      z
-        .string()
-        .refine(
-          (v) => {
-            try { new URL(v); return true; } catch { return false; }
-          },
-          { message: "Must be a valid URL" },
-        )
-        .nullable(),
-    ),
+  url: urlField,
   language: z.string().trim().nullable().optional().transform((v) => v?.trim() || null),
   tags: z.array(z.string().trim().min(1)),
 });

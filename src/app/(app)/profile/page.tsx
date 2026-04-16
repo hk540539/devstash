@@ -1,14 +1,13 @@
 import { redirect } from 'next/navigation'
-import bcrypt from 'bcryptjs'
 import { KeyRound, Layers, FolderOpen, Trash2, CalendarDays, Mail, User } from 'lucide-react'
-import { auth, signOut } from '@/auth'
-import { prisma } from '@/lib/prisma'
+import { auth } from '@/auth'
 import { getProfileUser, getProfileStats } from '@/lib/db/profile'
 import { getIcon } from '@/lib/icons'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { ChangePasswordForm } from './ChangePasswordForm'
 import { DeleteAccountButton } from './DeleteAccountButton'
+import { changePasswordAction, deleteAccountAction } from '@/actions/profile'
 
 export default async function ProfilePage() {
   const session = await auth()
@@ -35,55 +34,6 @@ export default async function ProfilePage() {
     day: 'numeric',
     year: 'numeric',
   })
-
-  async function changePasswordAction(
-    _prevState: { error?: string; success?: boolean } | null,
-    formData: FormData
-  ) {
-    'use server'
-    const session = await auth()
-    if (!session?.user?.id) return { error: 'Not authenticated.' }
-
-    const currentPassword = formData.get('currentPassword') as string
-    const newPassword = formData.get('newPassword') as string
-    const confirmPassword = formData.get('confirmPassword') as string
-
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      return { error: 'All fields are required.' }
-    }
-    if (newPassword.length < 8) {
-      return { error: 'New password must be at least 8 characters.' }
-    }
-    if (newPassword !== confirmPassword) {
-      return { error: 'Passwords do not match.' }
-    }
-
-    const dbUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { password: true },
-    })
-
-    if (!dbUser?.password) return { error: 'No password set on this account.' }
-
-    const match = await bcrypt.compare(currentPassword, dbUser.password)
-    if (!match) return { error: 'Current password is incorrect.' }
-
-    const hashed = await bcrypt.hash(newPassword, 12)
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: { password: hashed },
-    })
-
-    return { success: true }
-  }
-
-  async function deleteAccountAction() {
-    'use server'
-    const session = await auth()
-    if (!session?.user?.id) return
-    await prisma.user.delete({ where: { id: session.user.id } })
-    await signOut({ redirectTo: '/' })
-  }
 
   return (
     <div className="space-y-8">

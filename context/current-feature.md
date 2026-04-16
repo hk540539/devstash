@@ -2,11 +2,25 @@
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
+Refactor: split large files and extract shared utilities
+
+1. Extract `formatBytes` to `src/lib/format.ts` (used in FileListRow + ItemDrawer)
+2. Extract extension icon map + `getExtensionIcon` to `src/lib/file-utils.ts`
+3. Move profile server actions to `src/actions/profile.ts`
+4. Extract shared URL validation to `src/lib/schemas/items.ts`, update `src/actions/items.ts`
+5. Extract shared tag upsert helper inside `src/lib/db/items.ts`
+6. Split `ItemDrawer.tsx` (659 lines) into `ItemDrawerSkeleton`, `ItemDrawerDetail`, `ItemDrawerEdit`
+7. Split `DashboardLayout.tsx` — extract `SidebarBody`, `UserAvatar`, `UserFooter` to separate files
+
 ## Notes
+
+- All splits are pure extractions — no behavior changes
+- UserAvatar in DashboardLayout is a local duplicate; a shared one already exists at src/components/ui/user-avatar.tsx (check first)
+- Profile actions already re-fetch session internally so they move cleanly to a module-level 'use server' file
 
 ## History
 

@@ -1,36 +1,9 @@
 "use client";
 
-import { Download, FileText, FileImage, FileCode, FileArchive, FileAudio, FileVideo, File } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { Download } from "lucide-react";
+import { getExtensionIcon } from "@/lib/file-utils";
+import { formatBytes } from "@/lib/format";
 import type { ItemWithMeta } from "@/lib/db/items";
-
-const EXTENSION_ICONS: Record<string, LucideIcon> = {
-  // Images
-  jpg: FileImage, jpeg: FileImage, png: FileImage, gif: FileImage, webp: FileImage, svg: FileImage, ico: FileImage,
-  // Code
-  js: FileCode, ts: FileCode, jsx: FileCode, tsx: FileCode, py: FileCode, rb: FileCode, go: FileCode,
-  rs: FileCode, java: FileCode, cpp: FileCode, c: FileCode, cs: FileCode, php: FileCode, sh: FileCode,
-  // Documents
-  pdf: FileText, doc: FileText, docx: FileText, txt: FileText, md: FileText, csv: FileText, xls: FileText, xlsx: FileText,
-  // Archives
-  zip: FileArchive, tar: FileArchive, gz: FileArchive, rar: FileArchive, "7z": FileArchive,
-  // Audio
-  mp3: FileAudio, wav: FileAudio, ogg: FileAudio, flac: FileAudio,
-  // Video
-  mp4: FileVideo, mov: FileVideo, avi: FileVideo, mkv: FileVideo, webm: FileVideo,
-};
-
-function getExtensionIcon(fileName: string | null): LucideIcon {
-  if (!fileName) return File;
-  const ext = fileName.split(".").pop()?.toLowerCase() ?? "";
-  return EXTENSION_ICONS[ext] ?? File;
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
 
 interface FileListRowProps {
   item: ItemWithMeta;
