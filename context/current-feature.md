@@ -1,12 +1,24 @@
-# Current Feature
+# Current Feature: File List View
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
+- Display `/items/files` as a single-column list instead of the grid card layout
+- Each row shows: file icon (by extension), file name, file size, upload date, download button
+- Row hover highlight
+- Click row opens ItemDrawer (existing drawer behavior)
+- Download button triggers direct download without opening the drawer (stop propagation)
+- Responsive: stack file info vertically on mobile
+
 ## Notes
+
+- Only applies to the Files item type page — other pages keep their existing layout
+- File icon should reflect the file extension (e.g. PDF, ZIP, DOC, etc.)
+- Reuse the existing `/api/download/[...key]` proxy for the download button
+- Keep drawer open-on-click behavior intact
 
 ## History
 

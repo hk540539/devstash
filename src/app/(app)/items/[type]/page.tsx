@@ -46,7 +46,7 @@ export default async function ItemsByTypePage({
       <ItemsGridWithDrawer
         items={items}
         emptyMessage={`No ${label.toLowerCase()} yet.`}
-        layout={type === "images" ? "gallery" : "grid"}
+        layout={type === "images" ? "gallery" : type === "files" ? "list" : "grid"}
       />
     </div>
   );

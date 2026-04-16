@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { ItemCard } from "./ItemCard";
 import { ImageThumbnailCard } from "./ImageThumbnailCard";
+import { FileListRow } from "./FileListRow";
 import { ItemDrawer } from "./ItemDrawer";
 import type { ItemWithMeta } from "@/lib/db/items";
 
 interface ItemsGridWithDrawerProps {
   items: ItemWithMeta[];
   emptyMessage?: string;
-  layout?: "grid" | "gallery";
+  layout?: "grid" | "gallery" | "list";
 }
 
 export function ItemsGridWithDrawer({
@@ -21,6 +22,27 @@ export function ItemsGridWithDrawer({
 
   if (items.length === 0) {
     return <p className="text-sm text-muted-foreground">{emptyMessage}</p>;
+  }
+
+  if (layout === "list") {
+    return (
+      <>
+        <div className="flex flex-col gap-2">
+          {items.map((item) => (
+            <FileListRow
+              key={item.id}
+              item={item}
+              onClick={() => setSelectedItemId(item.id)}
+            />
+          ))}
+        </div>
+        <ItemDrawer
+          itemId={selectedItemId}
+          open={selectedItemId !== null}
+          onClose={() => setSelectedItemId(null)}
+        />
+      </>
+    );
   }
 
   return (
