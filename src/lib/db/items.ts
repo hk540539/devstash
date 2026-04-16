@@ -179,14 +179,8 @@ export async function getItemsByType(
   const dbName = SLUG_TO_DB_NAME[slug];
   if (!dbName) return [];
 
-  const itemType = await prisma.itemType.findFirst({
-    where: { name: dbName, isSystem: true },
-    select: { id: true },
-  });
-  if (!itemType) return [];
-
   const items = await prisma.item.findMany({
-    where: { userId, typeId: itemType.id },
+    where: { userId, type: { name: dbName, isSystem: true } },
     select: itemSelect,
     orderBy: { createdAt: "desc" },
   });
@@ -227,6 +221,10 @@ export async function updateItemById(
 ): Promise<ItemDetail> {
   const txOptions = { maxWait: 10000, timeout: 30000 };
   const item = await prisma.$transaction(async (tx) => {
+    // Verify ownership before mutating
+    const owned = await tx.item.findFirst({ where: { id, userId }, select: { id: true } });
+    if (!owned) throw new Error("Not found");
+
     // Disconnect all existing tags
     await tx.itemTag.deleteMany({ where: { itemId: id } });
 
@@ -250,7 +248,7 @@ export async function updateItemById(
     }
 
     return tx.item.update({
-      where: { id },
+      where: { id, userId },
       data: {
         title: data.title,
         description: data.description,

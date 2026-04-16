@@ -2,11 +2,21 @@
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
+Fix three security/performance issues identified in the code audit:
+
+1. **`updateItemById` IDOR** — add `userId` ownership check to the tag delete and item update within the transaction so users cannot overwrite other users' items
+2. **`/api/auth/register` rate limiting** — apply the existing `register` limiter (3/hr by IP) to the API route, matching the Server Action
+3. **`getItemsByType` single query** — collapse the two sequential DB calls into one `findMany` with a nested `type` filter, removing a round-trip on every `/items/[type]` page load
+
 ## Notes
+
+- Rate limit utility already has `register: createLimiter(3, "1 h")` — just wire it up in the route handler
+- `updateItemById` already receives `userId` — just needs to use it in the `where` clauses
+- `getItemsByType` already has `SLUG_TO_DB_NAME` map — pass `dbName` directly to the nested type filter
 
 ## History
 
