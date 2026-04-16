@@ -73,6 +73,8 @@ export type ItemWithMeta = {
   isFavorite: boolean;
   isPinned: boolean;
   createdAt: Date;
+  fileUrl: string | null;
+  fileName: string | null;
   type: {
     name: string;
     icon: string;
@@ -89,6 +91,8 @@ const itemSelect = {
   isFavorite: true,
   isPinned: true,
   createdAt: true,
+  fileUrl: true,
+  fileName: true,
   type: {
     select: { name: true, icon: true, color: true },
   },
@@ -105,6 +109,8 @@ function mapItem(item: {
   isFavorite: boolean;
   isPinned: boolean;
   createdAt: Date;
+  fileUrl: string | null;
+  fileName: string | null;
   type: { name: string; icon: string | null; color: string | null };
   tags: { tag: { name: string } }[];
 }): ItemWithMeta {
@@ -116,6 +122,8 @@ function mapItem(item: {
     isFavorite: item.isFavorite,
     isPinned: item.isPinned,
     createdAt: item.createdAt,
+    fileUrl: item.fileUrl,
+    fileName: item.fileName,
     type: {
       name: item.type.name,
       icon: item.type.icon ?? "File",

@@ -1,12 +1,21 @@
-# Current Feature
+# Current Feature: Image Gallery View
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
+- Replace the regular item card with an image thumbnail card on the `/items/images` page
+- Show images in a 3-column grid/gallery layout
+- Display each image with a 16:9 aspect ratio (`aspect-video`) using `object-cover` (may crop edges)
+- Add a subtle hover zoom effect (5% scale, 300ms transition)
+
 ## Notes
+
+- Only applies to the Images item type page — other item type pages keep the existing `ItemCard`
+- The thumbnail should serve the image via the existing `/api/download/[...key]` proxy (authenticated)
+- Keep the drawer open-on-click behavior intact (clicking a thumbnail still opens the `ItemDrawer`)
 
 ## History
 
