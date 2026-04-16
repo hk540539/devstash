@@ -11,6 +11,8 @@ import {
   Trash2,
   FolderOpen,
   CalendarDays,
+  Download,
+  File as FileIcon,
 } from "lucide-react";
 import {
   Sheet,
@@ -77,6 +79,13 @@ function DrawerSkeleton() {
 // ── View mode ─────────────────────────────────────────────────────────────────
 
 const CODE_EDITOR_TYPES = ["Snippet", "Command"];
+const FILE_ITEM_TYPES = ["File", "Image"];
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 function DrawerDetail({
   item,
@@ -89,6 +98,8 @@ function DrawerDetail({
 }) {
   const isCodeType = CODE_EDITOR_TYPES.includes(item.type.name);
   const isMarkdownType = MARKDOWN_TYPES.includes(item.type.name);
+  const isFileType = FILE_ITEM_TYPES.includes(item.type.name);
+  const isImage = item.type.name === "Image";
   const createdDate = new Date(item.createdAt).toLocaleDateString("en-US", {
 
     month: "long",
@@ -216,6 +227,57 @@ function DrawerDetail({
             >
               {item.url}
             </a>
+          </section>
+        )}
+
+        {isFileType && item.fileUrl && (
+          <section>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              {isImage ? "Image" : "File"}
+            </p>
+            {isImage ? (
+              <div className="rounded-md overflow-hidden border border-border bg-muted/30">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`/api/download/${item.fileUrl}?name=${encodeURIComponent(item.fileName ?? "image")}`}
+                  alt={item.fileName ?? "image"}
+                  className="max-h-64 w-full object-contain"
+                />
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 rounded-md border border-border bg-muted/40 px-3 py-2.5">
+                <FileIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <div className="flex-1 min-w-0">
+                  <p className="truncate text-sm font-medium">{item.fileName ?? "file"}</p>
+                  {item.fileSize && (
+                    <p className="text-xs text-muted-foreground">{formatBytes(item.fileSize)}</p>
+                  )}
+                </div>
+                <a
+                  href={`/api/download/${item.fileUrl}?name=${encodeURIComponent(item.fileName ?? "download")}`}
+                  download={item.fileName ?? "download"}
+                  className="shrink-0 flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium hover:bg-muted transition-colors text-muted-foreground"
+                  title="Download"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span>Download</span>
+                </a>
+              </div>
+            )}
+            {isImage && item.fileName && (
+              <div className="mt-2 flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">{item.fileName}{item.fileSize ? ` · ${formatBytes(item.fileSize)}` : ""}</p>
+                <a
+                  href={`/api/download/${item.fileUrl}?name=${encodeURIComponent(item.fileName)}`}
+                  download={item.fileName}
+                  className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium hover:bg-muted transition-colors text-muted-foreground"
+                  title="Download"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span>Download</span>
+                </a>
+              </div>
+            )}
           </section>
         )}
 

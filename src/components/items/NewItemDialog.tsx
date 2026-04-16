@@ -16,6 +16,7 @@ import {
 import { createItem } from "@/actions/items";
 import { CodeEditor } from "@/components/ui/code-editor";
 import { MarkdownEditor } from "@/components/ui/markdown-editor";
+import { FileUpload, type UploadResult } from "@/components/ui/file-upload";
 import { CREATABLE_TYPES, type CreatableType } from "@/lib/item-types";
 
 export { CREATABLE_TYPES, type CreatableType };
@@ -24,6 +25,7 @@ const CONTENT_TYPES: CreatableType[] = ["Snippet", "Prompt", "Command", "Note"];
 const LANGUAGE_TYPES: CreatableType[] = ["Snippet", "Command"];
 const MARKDOWN_TYPES: CreatableType[] = ["Note", "Prompt"];
 const URL_TYPES: CreatableType[] = ["Link"];
+const FILE_TYPES: CreatableType[] = ["File", "Image"];
 
 type ItemTypeOption = { id: string; name: string; slug: string };
 
@@ -56,10 +58,12 @@ export function NewItemDialog({ itemTypes, defaultType }: NewItemDialogProps) {
   const [selectedType, setSelectedType] = useState<CreatableType>(defaultType ?? "Snippet");
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<UploadResult | null>(null);
 
   const showContent = CONTENT_TYPES.includes(selectedType);
   const showLanguage = LANGUAGE_TYPES.includes(selectedType);
   const showUrl = URL_TYPES.includes(selectedType);
+  const showFileUpload = FILE_TYPES.includes(selectedType);
   const useCodeEditor = LANGUAGE_TYPES.includes(selectedType);
   const useMarkdownEditor = MARKDOWN_TYPES.includes(selectedType);
 
@@ -72,6 +76,7 @@ export function NewItemDialog({ itemTypes, defaultType }: NewItemDialogProps) {
     if (!isOpen) {
       setForm(EMPTY_FORM);
       setSelectedType(defaultType ?? "Snippet");
+      setUploadedFile(null);
     }
     setOpen(isOpen);
   }
@@ -99,6 +104,9 @@ export function NewItemDialog({ itemTypes, defaultType }: NewItemDialogProps) {
       language: showLanguage ? form.language || undefined : undefined,
       typeId: typeOption.id,
       tags,
+      fileKey: uploadedFile?.key,
+      fileName: uploadedFile?.fileName,
+      fileSize: uploadedFile?.fileSize,
     });
     setSaving(false);
 
@@ -107,6 +115,7 @@ export function NewItemDialog({ itemTypes, defaultType }: NewItemDialogProps) {
       setOpen(false);
       setForm(EMPTY_FORM);
       setSelectedType(defaultType ?? "Snippet");
+      setUploadedFile(null);
       router.refresh();
     } else {
       toast.error(result.error);
@@ -116,6 +125,7 @@ export function NewItemDialog({ itemTypes, defaultType }: NewItemDialogProps) {
   const canSubmit =
     form.title.trim().length > 0 &&
     (!showUrl || form.url.trim().length > 0) &&
+    (!showFileUpload || uploadedFile !== null) &&
     !saving;
 
   const inputCls =
@@ -148,7 +158,7 @@ export function NewItemDialog({ itemTypes, defaultType }: NewItemDialogProps) {
                   <button
                     key={type}
                     type="button"
-                    onClick={() => setSelectedType(type)}
+                    onClick={() => { setSelectedType(type); setUploadedFile(null); }}
                     className={`rounded-md px-2.5 py-1 text-xs font-medium border transition-colors ${
                       selectedType === type
                         ? "bg-primary text-primary-foreground border-primary"
@@ -235,6 +245,19 @@ export function NewItemDialog({ itemTypes, defaultType }: NewItemDialogProps) {
                   value={form.url}
                   onChange={set("url")}
                   placeholder="https://example.com"
+                />
+              </div>
+            )}
+
+            {/* File / Image upload */}
+            {showFileUpload && (
+              <div>
+                <p className={labelCls}>{selectedType} *</p>
+                <FileUpload
+                  itemType={selectedType as "File" | "Image"}
+                  uploaded={uploadedFile}
+                  onUploaded={setUploadedFile}
+                  onClear={() => setUploadedFile(null)}
                 />
               </div>
             )}
