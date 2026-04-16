@@ -2,21 +2,11 @@
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-Fix three security/performance issues identified in the code audit:
-
-1. **`updateItemById` IDOR** — add `userId` ownership check to the tag delete and item update within the transaction so users cannot overwrite other users' items
-2. **`/api/auth/register` rate limiting** — apply the existing `register` limiter (3/hr by IP) to the API route, matching the Server Action
-3. **`getItemsByType` single query** — collapse the two sequential DB calls into one `findMany` with a nested `type` filter, removing a round-trip on every `/items/[type]` page load
-
 ## Notes
-
-- Rate limit utility already has `register: createLimiter(3, "1 h")` — just wire it up in the route handler
-- `updateItemById` already receives `userId` — just needs to use it in the `where` clauses
-- `getItemsByType` already has `SLUG_TO_DB_NAME` map — pass `dbName` directly to the nested type filter
 
 ## History
 
@@ -50,3 +40,4 @@ Fix three security/performance issues identified in the code audit:
 - File & Image Upload completed — `@aws-sdk/client-s3` + Supabase S3-compatible storage; `src/lib/s3.ts` singleton client; `POST /api/upload` with type/size validation (5 MB max); `GET /api/download/[...key]` authenticated proxy with ownership check; `FileUpload` component with drag-and-drop, XHR progress bar, post-upload download button; NewItemDialog supports File and Image types (upload required before create, type switch clears upload); ItemDrawer shows image preview and file name/size/download; `deleteItemById` cleans up S3 on item delete; Prisma transactions use `maxWait/timeout` for Neon serverless stability
 - Image Gallery View completed — `ImageThumbnailCard` with `aspect-video`, `object-cover`, 5% hover zoom (300ms transition); `ItemsGridWithDrawer` accepts `layout` prop; `/items/images` renders gallery layout, all other type pages unchanged; `fileUrl` + `fileName` added to `ItemWithMeta` and `itemSelect`; drawer open-on-click preserved
 - File List View completed — `FileListRow` with extension-based icon (PDF/ZIP/code/audio/video/etc.), file name, size, date, download button (stops propagation); responsive mobile stacking; `ItemsGridWithDrawer` supports `layout="list"`; `/items/files` uses list layout; `fileSize` added to `ItemWithMeta`, `itemSelect`, and `mapItem`
+- Security & Performance Audit Fixes completed — `updateItemById` ownership check (findFirst + userId in update where to prevent IDOR); rate limiting added to `POST /api/auth/register` (3/hr by IP, matching Server Action); `getItemsByType` collapsed from two sequential queries to one `findMany` with nested type filter
