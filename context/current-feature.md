@@ -2,25 +2,11 @@
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-Refactor: split large files and extract shared utilities
-
-1. Extract `formatBytes` to `src/lib/format.ts` (used in FileListRow + ItemDrawer)
-2. Extract extension icon map + `getExtensionIcon` to `src/lib/file-utils.ts`
-3. Move profile server actions to `src/actions/profile.ts`
-4. Extract shared URL validation to `src/lib/schemas/items.ts`, update `src/actions/items.ts`
-5. Extract shared tag upsert helper inside `src/lib/db/items.ts`
-6. Split `ItemDrawer.tsx` (659 lines) into `ItemDrawerSkeleton`, `ItemDrawerDetail`, `ItemDrawerEdit`
-7. Split `DashboardLayout.tsx` — extract `SidebarBody`, `UserAvatar`, `UserFooter` to separate files
-
 ## Notes
-
-- All splits are pure extractions — no behavior changes
-- UserAvatar in DashboardLayout is a local duplicate; a shared one already exists at src/components/ui/user-avatar.tsx (check first)
-- Profile actions already re-fetch session internally so they move cleanly to a module-level 'use server' file
 
 ## History
 
@@ -55,3 +41,4 @@ Refactor: split large files and extract shared utilities
 - Image Gallery View completed — `ImageThumbnailCard` with `aspect-video`, `object-cover`, 5% hover zoom (300ms transition); `ItemsGridWithDrawer` accepts `layout` prop; `/items/images` renders gallery layout, all other type pages unchanged; `fileUrl` + `fileName` added to `ItemWithMeta` and `itemSelect`; drawer open-on-click preserved
 - File List View completed — `FileListRow` with extension-based icon (PDF/ZIP/code/audio/video/etc.), file name, size, date, download button (stops propagation); responsive mobile stacking; `ItemsGridWithDrawer` supports `layout="list"`; `/items/files` uses list layout; `fileSize` added to `ItemWithMeta`, `itemSelect`, and `mapItem`
 - Security & Performance Audit Fixes completed — `updateItemById` ownership check (findFirst + userId in update where to prevent IDOR); rate limiting added to `POST /api/auth/register` (3/hr by IP, matching Server Action); `getItemsByType` collapsed from two sequential queries to one `findMany` with nested type filter
+- Refactor: Split Large Components completed — `formatBytes` → `src/lib/format.ts`; extension icons → `src/lib/file-utils.ts`; profile actions → `src/actions/profile.ts`; shared `urlField` Zod validator → `src/lib/schemas/items.ts`; `upsertTagIds` helper extracted in `items.ts`; `ItemDrawer.tsx` (659 lines) split into `ItemDrawerSkeleton`, `ItemDrawerDetail`, `ItemDrawerEdit`; `DashboardLayout.tsx` split into `SidebarBody`, `UserAvatar`, `UserFooter`
