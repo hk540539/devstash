@@ -1,24 +1,12 @@
-# Current Feature: File List View
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Display `/items/files` as a single-column list instead of the grid card layout
-- Each row shows: file icon (by extension), file name, file size, upload date, download button
-- Row hover highlight
-- Click row opens ItemDrawer (existing drawer behavior)
-- Download button triggers direct download without opening the drawer (stop propagation)
-- Responsive: stack file info vertically on mobile
-
 ## Notes
-
-- Only applies to the Files item type page — other pages keep their existing layout
-- File icon should reflect the file extension (e.g. PDF, ZIP, DOC, etc.)
-- Reuse the existing `/api/download/[...key]` proxy for the download button
-- Keep drawer open-on-click behavior intact
 
 ## History
 
@@ -51,3 +39,4 @@ In Progress
 - Code Editor completed — Monaco Editor (`@monaco-editor/react`) replaces Textarea for Snippet and Command types in drawer view, drawer edit, and New Item dialog; `CodeEditor` component with vs-dark theme, macOS traffic-light dots, copy button, language label, fluid height (150–400px); `CREATABLE_TYPES` extracted to `src/lib/item-types.ts` (server-safe); type-specific New Item button on `/items/[type]` pages with type preselected; vitest config fixed to use `vite-tsconfig-paths` as plugin
 - File & Image Upload completed — `@aws-sdk/client-s3` + Supabase S3-compatible storage; `src/lib/s3.ts` singleton client; `POST /api/upload` with type/size validation (5 MB max); `GET /api/download/[...key]` authenticated proxy with ownership check; `FileUpload` component with drag-and-drop, XHR progress bar, post-upload download button; NewItemDialog supports File and Image types (upload required before create, type switch clears upload); ItemDrawer shows image preview and file name/size/download; `deleteItemById` cleans up S3 on item delete; Prisma transactions use `maxWait/timeout` for Neon serverless stability
 - Image Gallery View completed — `ImageThumbnailCard` with `aspect-video`, `object-cover`, 5% hover zoom (300ms transition); `ItemsGridWithDrawer` accepts `layout` prop; `/items/images` renders gallery layout, all other type pages unchanged; `fileUrl` + `fileName` added to `ItemWithMeta` and `itemSelect`; drawer open-on-click preserved
+- File List View completed — `FileListRow` with extension-based icon (PDF/ZIP/code/audio/video/etc.), file name, size, date, download button (stops propagation); responsive mobile stacking; `ItemsGridWithDrawer` supports `layout="list"`; `/items/files` uses list layout; `fileSize` added to `ItemWithMeta`, `itemSelect`, and `mapItem`
