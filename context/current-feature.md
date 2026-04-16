@@ -1,12 +1,55 @@
-# Current Feature
+# Current Feature: File & Image Upload with Supabase Storage S3
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
+- Create upload API route for Supabase Storage S3
+- Create `FileUpload` component with drag-and-drop and upload progress indicator
+- Update New Item modal to use `FileUpload` for File and Image types
+- Display image preview for images, file info for files in drawer view
+- Add download button in `ItemDrawer` for file types via a proxy API route (avoids CORS)
+- Delete files from Supabase Storage when items are deleted
+
 ## Notes
+
+- Use `lib/db/items.ts` for all Prisma/DB functions (existing pattern)
+- File constraints: 5 MB max for both images and files
+- Image extensions: `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.svg`
+- File extensions: `.pdf`, `.txt`, `.md`, `.json`, `.yaml`, `.yml`, `.xml`, `.csv`, `.toml`, `.ini`
+
+### Supabase S3 Integration (via AWS SDK)
+
+- Install: `@aws-sdk/client-s3`
+- Supabase S3 uses **AWS Signature Version 4** and is fully S3-compatible
+- Endpoint format: `https://<project-ref>.storage.supabase.co/storage/v1/s3`
+- Must use **path-style URLs** (`forcePathStyle: true`) when initialising `S3Client`
+- Access keys provide full storage access and bypass RLS — **server-side only**
+- Create a singleton `S3Client` in `src/lib/s3.ts`:
+  ```ts
+  import { S3Client } from "@aws-sdk/client-s3";
+  export const s3 = new S3Client({
+    region: process.env.SUPABASE_S3_REGION!,
+    endpoint: process.env.SUPABASE_S3_ENDPOINT!,
+    credentials: {
+      accessKeyId: process.env.SUPABASE_S3_ACCESS_ID!,
+      secretAccessKey: process.env.SUPABASE_S3_SECRET_ACCESS_KEY!,
+    },
+    forcePathStyle: true,
+  });
+  ```
+- Upload: `PutObjectCommand({ Bucket, Key, Body, ContentType })`
+- Delete: `DeleteObjectCommand({ Bucket, Key })`
+- Download/proxy: `GetObjectCommand({ Bucket, Key })` — stream response through Next.js API route
+
+### Env Vars (all present in `.env.example`)
+- `SUPABASE_S3_ACCESS_ID` — S3 access key ID (from Supabase Storage settings)
+- `SUPABASE_S3_SECRET_ACCESS_KEY` — S3 secret key
+- `SUPABASE_S3_BUCKET` — bucket name
+- `SUPABASE_S3_ENDPOINT` — `https://<ref>.storage.supabase.co/storage/v1/s3`
+- `SUPABASE_S3_REGION` — e.g. `ap-south-1` (your Supabase project region)
 
 ## History
 

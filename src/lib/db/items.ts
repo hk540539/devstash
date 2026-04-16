@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { s3, S3_BUCKET } from "@/lib/s3";
 
 export type SidebarItemType = {
   id: string;
@@ -203,6 +205,7 @@ export async function updateItemById(
   userId: string,
   data: UpdateItemData,
 ): Promise<ItemDetail> {
+  const txOptions = { maxWait: 10000, timeout: 30000 };
   const item = await prisma.$transaction(async (tx) => {
     // Disconnect all existing tags
     await tx.itemTag.deleteMany({ where: { itemId: id } });
@@ -247,7 +250,7 @@ export async function updateItemById(
         collection: { select: { id: true, name: true } },
       },
     });
-  });
+  }, txOptions);
 
   return {
     ...mapItem(item),
@@ -270,12 +273,17 @@ export type CreateItemData = {
   language: string | null;
   typeId: string;
   tags: string[];
+  fileKey: string | null;
+  fileName: string | null;
+  fileSize: number | null;
 };
 
 export async function createItemInDb(
   userId: string,
   data: CreateItemData,
 ): Promise<ItemWithMeta> {
+  const isFile = data.fileKey !== null;
+  const txOptions = { maxWait: 10000, timeout: 30000 };
   const item = await prisma.$transaction(async (tx) => {
     const tagIds = await Promise.all(
       data.tags.map(async (name) => {
@@ -295,7 +303,10 @@ export async function createItemInDb(
         content: data.content,
         url: data.url,
         language: data.language,
-        contentType: "text",
+        contentType: isFile ? "file" : "text",
+        fileUrl: data.fileKey,
+        fileName: data.fileName,
+        fileSize: data.fileSize,
         userId,
         typeId: data.typeId,
         tags: tagIds.length > 0
@@ -306,7 +317,7 @@ export async function createItemInDb(
     });
 
     return created;
-  });
+  }, txOptions);
 
   return mapItem(item);
 }
@@ -315,7 +326,21 @@ export async function deleteItemById(
   id: string,
   userId: string,
 ): Promise<void> {
+  const item = await prisma.item.findFirst({
+    where: { id, userId },
+    select: { fileUrl: true },
+  });
+
   await prisma.item.delete({ where: { id, userId } });
+
+  // Delete from S3 if the item had a file (fileUrl stores the S3 key)
+  if (item?.fileUrl) {
+    try {
+      await s3.send(new DeleteObjectCommand({ Bucket: S3_BUCKET, Key: item.fileUrl }));
+    } catch (err) {
+      console.error("S3 delete error (non-fatal):", err);
+    }
+  }
 }
 
 export async function getItemById(

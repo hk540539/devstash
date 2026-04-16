@@ -25,6 +25,9 @@ const CreateItemSchema = z.object({
   language: z.string().trim().optional().transform((v) => v?.trim() || null),
   typeId: z.string().min(1, "Type is required"),
   tags: z.array(z.string().trim().min(1)).default([]),
+  fileKey: z.string().optional().transform((v) => v || null),
+  fileName: z.string().optional().transform((v) => v || null),
+  fileSize: z.number().optional().transform((v) => v ?? null),
 });
 
 type CreateItemInput = {
@@ -35,6 +38,9 @@ type CreateItemInput = {
   language?: string;
   typeId: string;
   tags: string[];
+  fileKey?: string;
+  fileName?: string;
+  fileSize?: number;
 };
 
 type CreateResult =
@@ -53,7 +59,7 @@ export async function createItem(input: CreateItemInput): Promise<CreateResult> 
     return { success: false, error: message };
   }
 
-  const { title, description, content, url, language, typeId, tags } = parsed.data;
+  const { title, description, content, url, language, typeId, tags, fileKey, fileName, fileSize } = parsed.data;
 
   try {
     const item = await createItemInDb(session.user.id, {
@@ -64,9 +70,13 @@ export async function createItem(input: CreateItemInput): Promise<CreateResult> 
       language: language ?? null,
       typeId,
       tags,
+      fileKey: fileKey ?? null,
+      fileName: fileName ?? null,
+      fileSize: fileSize ?? null,
     });
     return { success: true, data: item };
-  } catch {
+  } catch (err) {
+    console.error("createItem error:", err);
     return { success: false, error: "Failed to create item. Please try again." };
   }
 }
