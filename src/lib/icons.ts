@@ -1,9 +1,7 @@
 import {
   Code,
-  CodeXml,
   Sparkles,
   Terminal,
-  Notebook,
   StickyNote,
   File,
   Image as ImageIcon,
@@ -19,14 +17,6 @@ export const ICON_MAP: Record<string, LucideIcon> = {
   File: File,
   Image: ImageIcon,
   Link: Link2,
-  // Legacy mock-data names
-  'code-xml': CodeXml,
-  sparkles: Sparkles,
-  terminal: Terminal,
-  notebook: Notebook,
-  file: File,
-  image: ImageIcon,
-  link: Link2,
 }
 
 export function getIcon(name: string): LucideIcon {

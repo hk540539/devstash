@@ -76,6 +76,8 @@ export type ItemWithMeta = {
   fileUrl: string | null;
   fileName: string | null;
   fileSize: number | null;
+  content: string | null;
+  url: string | null;
   type: {
     name: string;
     icon: string;
@@ -95,6 +97,8 @@ const itemSelect = {
   fileUrl: true,
   fileName: true,
   fileSize: true,
+  content: true,
+  url: true,
   type: {
     select: { name: true, icon: true, color: true },
   },
@@ -114,6 +118,8 @@ function mapItem(item: {
   fileUrl: string | null;
   fileName: string | null;
   fileSize: number | null;
+  content: string | null;
+  url: string | null;
   type: { name: string; icon: string | null; color: string | null };
   tags: { tag: { name: string } }[];
 }): ItemWithMeta {
@@ -128,6 +134,8 @@ function mapItem(item: {
     fileUrl: item.fileUrl,
     fileName: item.fileName,
     fileSize: item.fileSize,
+    content: item.content,
+    url: item.url,
     type: {
       name: item.type.name,
       icon: item.type.icon ?? "File",
